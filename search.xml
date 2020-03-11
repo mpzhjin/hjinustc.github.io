@@ -5,7 +5,9 @@
     <url>/2020/03/11/golang-tricky-1/</url>
     <content><![CDATA[<p>俗话说得好，golang一时爽，一直golang一直爽.</p>
 <p>最近公司也在从Python逐渐迁往Golang，在迁移的过程中不得不感叹这世界还有golang这么吊吊的语言，完全就是爱用就用不用就拉到的架势，让人又爱又恨.</p>
-<p>今天开始我们来慢慢盘点下踩到的那些神级坑。</p>
+<p>今天开始我们来慢慢盘点下踩到的那些神级坑。<br>第一章，我们从for循环取地址的神级坑开始。</p>
+<a id="more"></a>
+
 <hr>
 <p>今天天气灰常的好，心情不错，小明来到了公司，这时候他的同事小亮告诉他昨天的function已经ready可以调用了，小明蹦蹦跳跳的调用了下函数：</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">type DemoStruct struct &#123;</span><br><span class="line">	DemoValue string &#96;json:&quot;demo_value&quot;&#96;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func XiaoLiangFunction() ([]DemoStruct, error) &#123;</span><br><span class="line">	demoArray :&#x3D; make([]DemoStruct, 3)</span><br><span class="line">	demoArray[0] &#x3D; DemoStruct&#123;DemoValue: &quot;1&quot;&#125;</span><br><span class="line">	demoArray[1] &#x3D; DemoStruct&#123;DemoValue: &quot;2&quot;&#125;</span><br><span class="line">	demoArray[2] &#x3D; DemoStruct&#123;DemoValue: &quot;3&quot;&#125;</span><br><span class="line">	return demoArray, nil</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
