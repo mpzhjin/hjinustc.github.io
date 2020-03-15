@@ -1,1 +1,1 @@
-[{"title":"闲说何为技术能力","url":"/2020/03/12/zatan-1/"},{"title":"黄金的个人博客开通啦","url":"/2020/03/09/open-blog/"},{"title":"Golang不可不知的十大陷阱（一）- for循环取地址","url":"/2020/03/11/golang-tricky-1/"}]
+[{"title":"Golang不可不知的十大陷阱（二）- gob decode会把指向0的指针变为nil","url":"/2020/03/15/golang-tricky-2/"},{"title":"黄金的个人博客开通啦","url":"/2020/03/09/open-blog/"},{"title":"闲说何为技术能力","url":"/2020/03/12/zatan-1/"},{"title":"Golang不可不知的十大陷阱（一）- for循环取地址","url":"/2020/03/11/golang-tricky-1/"}]

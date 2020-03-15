@@ -1,6 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Golang不可不知的十大陷阱（二）- gob decode会把指向0的指针变为nil</title>
+    <url>/2020/03/15/golang-tricky-2/</url>
+    <content><![CDATA[<p>俗话说得好，golang一时爽，一直golang一直爽.</p>
+<p>最近公司也在从Python逐渐迁往Golang，在迁移的过程中不得不感叹这世界还有golang这么吊吊的语言，完全就是爱用就用不用就拉到的架势，让人又爱又恨.</p>
+<p>今天开始我们来慢慢盘点下踩到的那些神级坑。</p>
+<p>第二章，我们来探索下gob是怎么把指向0的指针变为nil。</p>
+<a id="more"></a>
+
+<hr>
+<p>日常搬砖中，我们常常会做一些类似于<code>deepcopy</code>的事情，例如：</p>
+<ul>
+<li>把别人struct的相同key的value原封不动的copy到自己的struct</li>
+<li>从缓存中拿到bytes然后反序列化到自己的struct中
+这时候无可避免的你会用到golang官方的gob（如果你用第三方库那另说）</li>
+</ul>
+<p>我们先定义一个struct</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">type DemoStruct struct &#123;</span><br><span class="line">	Demo1 *int32</span><br><span class="line">	Demo2 *int32</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后用一段代码模拟我们从缓存，例如Redis里边拿到的bytes</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">b :&#x3D; DemoStruct&#123;</span><br><span class="line">	proto.Int32(0),</span><br><span class="line">	proto.Int32(1),</span><br><span class="line">&#125;</span><br><span class="line">fmt.Println(&quot;原始数据&quot;)</span><br><span class="line">fmt.Println(b)</span><br><span class="line">buf :&#x3D; new(bytes.Buffer)</span><br><span class="line">_ &#x3D; gob.NewEncoder(buf).Encode(b)</span><br><span class="line">&#x2F;&#x2F; 用上述代码来模拟从Redis中拿到的bytes：buf</span><br></pre></td></tr></table></figure>
+<p>最后用官方的gob做反序列化</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;&#x2F; 现在反序列化到我们想要的DemoStruct中</span><br><span class="line">var c DemoStruct</span><br><span class="line">_ &#x3D; gob.NewDecoder(buf).Decode(&amp;c)</span><br><span class="line">fmt.Println(&quot;反序列化后&quot;)</span><br><span class="line">fmt.Println(c)</span><br></pre></td></tr></table></figure>
+<p>完整代码为</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">package main</span><br><span class="line"></span><br><span class="line">import (</span><br><span class="line">	&quot;bytes&quot;</span><br><span class="line">	&quot;encoding&#x2F;gob&quot;</span><br><span class="line">	&quot;fmt&quot;</span><br><span class="line">	&quot;github.com&#x2F;golang&#x2F;protobuf&#x2F;proto&quot;</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">type DemoStruct struct &#123;</span><br><span class="line">	Demo1 *int32</span><br><span class="line">	Demo2 *int32</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func main() &#123;</span><br><span class="line">	b :&#x3D; DemoStruct&#123;</span><br><span class="line">		proto.Int32(0),</span><br><span class="line">		proto.Int32(1),</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println(&quot;原始数据&quot;)</span><br><span class="line">	fmt.Println(b)</span><br><span class="line">	buf :&#x3D; new(bytes.Buffer)</span><br><span class="line">	_ &#x3D; gob.NewEncoder(buf).Encode(b)</span><br><span class="line">	&#x2F;&#x2F; 用上述代码来模拟从Redis中拿到的bytes：buf</span><br><span class="line"></span><br><span class="line">	&#x2F;&#x2F; 现在反序列化到我们想要的DemoStruct中</span><br><span class="line">	var c DemoStruct</span><br><span class="line">	_ &#x3D; gob.NewDecoder(buf).Decode(&amp;c)</span><br><span class="line">	fmt.Println(&quot;反序列化后&quot;)</span><br><span class="line">	fmt.Println(c)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们的期望值肯定是c和b一模一样是不是？</p>
+<p>如果你run上述代码最后发现自己拿到的是</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">原始数据</span><br><span class="line">&#123;0xc00001816c 0xc000018270&#125;</span><br><span class="line">反序列化后</span><br><span class="line">&#123;&lt;nil&gt; 0xc000018478&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>指向1的指针依然可以被原封不动的反序列化回去，但是指向0的指针会被反序列化为nil。</strong></p>
+<p>这就是我们今天的主题，所以当利用gob做反序列化的时候一定要小心，切不可以为自己丢到Redis里边的值永远不会为nil，拿到的时候就永远不会为nil，这个地方
+一定要做相应的判断！！！！不然会直接panic</p>
+<p>你可能以为这是golang的一个bug？nonono，这是golang的<strong>正常行为</strong>。
+详见：</p>
+<blockquote>
+<p><a href="https://golang.org/pkg/encoding/gob/" target="_blank" rel="noopener">https://golang.org/pkg/encoding/gob/</a></p>
+</blockquote>
+<p>留意这么一句</p>
+<blockquote>
+<p>Structs are sent as a sequence of (field number, field value) pairs. The field value is sent using the standard gob encoding for its type, recursively. If a field has the zero value for its type (except for arrays; see above), it is omitted from the transmission. The field number is defined by the type of the encoded struct: the first field of the encoded type is field 0, the second is field 1, etc. When encoding a value, the field numbers are delta encoded for efficiency and the fields are always sent in order of increasing field number; the deltas are therefore unsigned. The initialization for the delta encoding sets the field number to -1, so an unsigned integer field 0 with value 7 is transmitted as unsigned delta = 1, unsigned value = 7 or (01 07). Finally, after all the fields have been sent a terminating mark denotes the end of the struct. That mark is a delta=0 value, which has representation (00).</p>
+</blockquote>
+<p>简而言之，这不是个bug，这就是golang官方的约定。</p>
+<p>such is golang.</p>
+]]></content>
+      <categories>
+        <category>Golang</category>
+      </categories>
+      <tags>
+        <tag>陷阱</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>闲说何为技术能力</title>
     <url>/2020/03/12/zatan-1/</url>
     <content><![CDATA[<p>转眼已经工作快五年了。</p>
