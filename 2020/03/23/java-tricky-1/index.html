@@ -20,19 +20,22 @@
     var CONFIG = {"hostname":"hjinustc.com","root":"/","scheme":"Gemini","version":"7.7.2","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":true,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="普通coder，普通writer">
-<meta property="og:type" content="website">
-<meta property="og:title" content="categories">
-<meta property="og:url" content="http://hjinustc.com/categories/index.html">
+  <meta name="description" content="在做业务开发，特别是支付相关的业务时，可能会碰到需要将入参按照字典序排序后再MD5或者SHA256加密的问题。 例如：  那么如何用JAVA来快速实现呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="支付加密中的字典序排序（ASCII码排序）以及MD5 SHA256加密 -JAVA">
+<meta property="og:url" content="http://hjinustc.com/2020/03/23/java-tricky-1/index.html">
 <meta property="og:site_name" content="黄金">
-<meta property="og:description" content="普通coder，普通writer">
+<meta property="og:description" content="在做业务开发，特别是支付相关的业务时，可能会碰到需要将入参按照字典序排序后再MD5或者SHA256加密的问题。 例如：  那么如何用JAVA来快速实现呢？">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2020-03-09T13:05:37.000Z">
-<meta property="article:modified_time" content="2020-03-09T13:06:57.112Z">
+<meta property="og:image" content="https://i.loli.net/2020/03/23/c4jrTpekvLGtEh9.png">
+<meta property="article:published_time" content="2020-03-23T14:50:24.000Z">
+<meta property="article:modified_time" content="2020-03-23T14:57:57.027Z">
 <meta property="article:author" content="Huang Jin">
+<meta property="article:tag" content="小技巧">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://i.loli.net/2020/03/23/c4jrTpekvLGtEh9.png">
 
-<link rel="canonical" href="http://hjinustc.com/categories/">
+<link rel="canonical" href="http://hjinustc.com/2020/03/23/java-tricky-1/">
 
 
 <script id="page-configurations">
@@ -40,12 +43,11 @@
   CONFIG.page = {
     sidebar: "",
     isHome : false,
-    isPost : false
+    isPost : true
   };
 </script>
 
-  <title>categories | 黄金
-  </title>
+  <title>支付加密中的字典序排序（ASCII码排序）以及MD5 SHA256加密 -JAVA | 黄金</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-160030503-1"></script>
     <script>
@@ -192,52 +194,128 @@
       <div class="main-inner">
         <div class="content-wrap">
           
-  
-  
 
           <div class="content">
             
 
   <div class="posts-expand">
-    
-    
-    
-    <div class="post-block" lang="zh-CN">
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block " lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hjinustc.com/2020/03/23/java-tricky-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Huang Jin">
+      <meta itemprop="description" content="普通coder，普通writer">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄金">
+    </span>
       <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          支付加密中的字典序排序（ASCII码排序）以及MD5 SHA256加密 -JAVA
+        </h2>
 
-<h2 class="post-title" itemprop="name headline">categories
-</h2>
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
 
-<div class="post-meta">
+              <time title="创建时间：2020-03-23 22:50:24 / 修改时间：22:57:57" itemprop="dateCreated datePublished" datetime="2020-03-23T22:50:24+08:00">2020-03-23</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Java/" itemprop="url" rel="index"><span itemprop="name">Java</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/03/23/java-tricky-1/" class="post-meta-item leancloud_visitors" data-flag-title="支付加密中的字典序排序（ASCII码排序）以及MD5 SHA256加密 -JAVA" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">评论数：</span>
+    
+    <a title="valine" href="/2020/03/23/java-tricky-1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/23/java-tricky-1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
   
 
-</div>
+        </div>
+      </header>
 
-</header>
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-      
-      
-      <div class="post-body">
-          <div class="category-all-page">
-            <div class="category-all-title">
-              目前共计 3 个分类
-            </div>
-            <div class="category-all">
-              <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Golang/">Golang</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Java/">Java</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/%E6%9D%82%E8%B0%88/">杂谈</a><span class="category-list-count">3</span></li></ul>
-            </div>
-          </div>
-        
-      </div>
-      
-      
-      
+        <p>在做业务开发，特别是支付相关的业务时，可能会碰到需要将入参按照字典序排序后再MD5或者SHA256加密的问题。
+例如：
+<img src="https://i.loli.net/2020/03/23/c4jrTpekvLGtEh9.png" alt="Screenshot 2020-03-23 at 10.53.54 PM.png"></p>
+<p>那么如何用JAVA来快速实现呢？</p>
+<a id="more"></a>
+
+<p>其实很简单，简单到只需要一行代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Collections.sort(keys);</span><br></pre></td></tr></table></figure>
+<p>一般来讲我们会用map来存储所有的参数，所以整体的实现就是：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 把数组所有元素排序，并按照“参数&#x3D;参数值”的模式用“&amp;”字符拼接成字符串</span><br><span class="line"> *</span><br><span class="line"> * @param params 需要排序并参与字符拼接的参数组</span><br><span class="line"> * @return 拼接后字符串</span><br><span class="line"> *&#x2F;</span><br><span class="line">public static String createLinkString(Map&lt;String, String&gt; params) &#123;</span><br><span class="line">    List&lt;String&gt; keys &#x3D; new ArrayList&lt;&gt;(params.keySet());</span><br><span class="line">    Collections.sort(keys);</span><br><span class="line">    String prestr &#x3D; &quot;&quot;;</span><br><span class="line">    for (int i &#x3D; 0; i &lt; keys.size(); i++) &#123;</span><br><span class="line">        String key &#x3D; keys.get(i);</span><br><span class="line">        String value &#x3D; params.get(key);</span><br><span class="line">        if (i &#x3D;&#x3D; keys.size() - 1) &#123;&#x2F;&#x2F; 拼接时，不包括最后一个&amp;字符</span><br><span class="line">            prestr &#x3D; prestr + key + &quot;&#x3D;&quot; + value;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            prestr &#x3D; prestr + key + &quot;&#x3D;&quot; + value + &quot;&amp;&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return prestr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>附上MD5的Java实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public static String sign(String text, String key, String input_charset) &#123;</span><br><span class="line">    text &#x3D; text + &quot;&amp;key&#x3D;&quot; + key;</span><br><span class="line">    return DigestUtils.md5Hex(getContentBytes(text, input_charset));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>SHA256的Java实现</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Mac sha256_HMAC &#x3D; Mac.getInstance(&quot;HmacSHA256&quot;);</span><br><span class="line">sha256_HMAC.init(new SecretKeySpec(WechatConfig.key.getBytes(), &quot;HmacSHA256&quot;));</span><br><span class="line">byte[] result &#x3D; sha256_HMAC.doFinal(prestr.getBytes());</span><br><span class="line">String sign &#x3D; DatatypeConverter.printHexBinary(result).toUpperCase();</span><br></pre></td></tr></table></figure>
+
     </div>
-    
 
     
     
     
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="tag"># 小技巧</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/03/22/zatan-best-ide/" rel="prev" title="闲说-什么是最好的IDE">
+      <i class="fa fa-chevron-left"></i> 闲说-什么是最好的IDE
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
   </div>
 
 

@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>支付加密中的字典序排序（ASCII码排序）以及MD5 SHA256加密 -JAVA</title>
+    <url>/2020/03/23/java-tricky-1/</url>
+    <content><![CDATA[<p>在做业务开发，特别是支付相关的业务时，可能会碰到需要将入参按照字典序排序后再MD5或者SHA256加密的问题。
+例如：
+<img src="https://i.loli.net/2020/03/23/c4jrTpekvLGtEh9.png" alt="Screenshot 2020-03-23 at 10.53.54 PM.png"></p>
+<p>那么如何用JAVA来快速实现呢？</p>
+<a id="more"></a>
+
+<p>其实很简单，简单到只需要一行代码</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Collections.sort(keys);</span><br></pre></td></tr></table></figure>
+<p>一般来讲我们会用map来存储所有的参数，所以整体的实现就是：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 把数组所有元素排序，并按照“参数&#x3D;参数值”的模式用“&amp;”字符拼接成字符串</span><br><span class="line"> *</span><br><span class="line"> * @param params 需要排序并参与字符拼接的参数组</span><br><span class="line"> * @return 拼接后字符串</span><br><span class="line"> *&#x2F;</span><br><span class="line">public static String createLinkString(Map&lt;String, String&gt; params) &#123;</span><br><span class="line">    List&lt;String&gt; keys &#x3D; new ArrayList&lt;&gt;(params.keySet());</span><br><span class="line">    Collections.sort(keys);</span><br><span class="line">    String prestr &#x3D; &quot;&quot;;</span><br><span class="line">    for (int i &#x3D; 0; i &lt; keys.size(); i++) &#123;</span><br><span class="line">        String key &#x3D; keys.get(i);</span><br><span class="line">        String value &#x3D; params.get(key);</span><br><span class="line">        if (i &#x3D;&#x3D; keys.size() - 1) &#123;&#x2F;&#x2F; 拼接时，不包括最后一个&amp;字符</span><br><span class="line">            prestr &#x3D; prestr + key + &quot;&#x3D;&quot; + value;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            prestr &#x3D; prestr + key + &quot;&#x3D;&quot; + value + &quot;&amp;&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return prestr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>附上MD5的Java实现</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public static String sign(String text, String key, String input_charset) &#123;</span><br><span class="line">    text &#x3D; text + &quot;&amp;key&#x3D;&quot; + key;</span><br><span class="line">    return DigestUtils.md5Hex(getContentBytes(text, input_charset));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>SHA256的Java实现</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Mac sha256_HMAC &#x3D; Mac.getInstance(&quot;HmacSHA256&quot;);</span><br><span class="line">sha256_HMAC.init(new SecretKeySpec(WechatConfig.key.getBytes(), &quot;HmacSHA256&quot;));</span><br><span class="line">byte[] result &#x3D; sha256_HMAC.doFinal(prestr.getBytes());</span><br><span class="line">String sign &#x3D; DatatypeConverter.printHexBinary(result).toUpperCase();</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>小技巧</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>闲说-什么是最好的IDE</title>
     <url>/2020/03/22/zatan-best-ide/</url>
     <content><![CDATA[<p>朴实善良的程序员在一天的8到18个小时的工作时间里，面对最多的莫过于自己的浏览器和IDE。</p>
