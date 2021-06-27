@@ -1,8 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>黄金的个人博客开通啦</title>
+    <url>/2020/03/09/open-blog/</url>
+    <content><![CDATA[<p>真正意义上的个人博客吧</p>
+<p>总是犯懒，懒得总结</p>
+<p>作为一个非典型的程序员，还是希望能坚持记录一些对自己有用的东西</p>
+<p>普通coder，做一个普通writer</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>瞎扯</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Golang不可不知的十大陷阱（一）- for循环取地址</title>
+    <url>/2020/03/11/code/golang-tricky-1/</url>
+    <content><![CDATA[<p>俗话说得好，golang一时爽，一直golang一直爽.</p>
+<p>最近公司也在从Python逐渐迁往Golang，在迁移的过程中不得不感叹这世界还有golang这么吊吊的语言，完全就是爱用就用不用就拉到的架势，让人又爱又恨.</p>
+<p>今天开始我们来慢慢盘点下踩到的那些神级坑。
+第一章，我们从for循环取地址的神级坑开始。</p>
+<a id="more"></a>
+
+<hr>
+<p>今天天气灰常的好，心情不错，小明来到了公司，这时候他的同事小亮告诉他昨天的function已经ready可以调用了，小明蹦蹦跳跳的调用了下函数：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">type DemoStruct struct &#123;</span><br><span class="line">	DemoValue string &#96;json:&quot;demo_value&quot;&#96;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func XiaoLiangFunction() ([]DemoStruct, error) &#123;</span><br><span class="line">	demoArray :&#x3D; make([]DemoStruct, 3)</span><br><span class="line">	demoArray[0] &#x3D; DemoStruct&#123;DemoValue: &quot;1&quot;&#125;</span><br><span class="line">	demoArray[1] &#x3D; DemoStruct&#123;DemoValue: &quot;2&quot;&#125;</span><br><span class="line">	demoArray[2] &#x3D; DemoStruct&#123;DemoValue: &quot;3&quot;&#125;</span><br><span class="line">	return demoArray, nil</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是小明习惯用指针，想把返回值[]DemoStruct转换成[]*DemoStruct。</p>
+<p>心中默念了声**后，小明开始了一天的劳作，终于在下班前：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line"></span><br><span class="line">	demoArray, _ :&#x3D; XiaoLiangFunction()</span><br><span class="line">	demoArrayAddress :&#x3D; make([]*DemoStruct, 3)</span><br><span class="line"></span><br><span class="line">	for index, demoValue :&#x3D; range demoArray &#123;</span><br><span class="line">		demoArrayAddress[index] &#x3D; &amp;demoValue</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(demoArrayAddress)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>背上书包，click run，准备在结果出现的那一刻潇洒转身，差点儿闪了自己的老腰：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[0xc000010200 0xc000010200 0xc000010200]</span><br></pre></td></tr></table></figure>
+<p>居然数组所有指针元素的地址都是一模一样的！！</p>
+<p>这时，夕阳西下，小明又开始了新一晚的劳作。</p>
+<h3 id="why？"><a href="#why？" class="headerlink" title="why？"></a>why？</h3><p>其实这个bug并不难理解，循环变量demoValue在生成后，之后的循环一直被重复调用，所以才产生这个结果。</p>
+<p>最简单的解法是在取地址前加一行<code>demoValue := demoValue</code>,最终的结果就是</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line"></span><br><span class="line">	demoArray, _ :&#x3D; XiaoLiangFunction()</span><br><span class="line">	demoArrayAddress :&#x3D; make([]*DemoStruct, 3)</span><br><span class="line"></span><br><span class="line">	for index, demoValue :&#x3D; range demoArray &#123;</span><br><span class="line">		demoValue :&#x3D; demoValue</span><br><span class="line">		demoArrayAddress[index] &#x3D; &amp;demoValue</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(demoArrayAddress)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看起来是不是不是很优雅？其实这是<strong>golang官方推荐的解法</strong></p>
+<p>详情见：<a href="https://github.com/golang/go/wiki/CommonMistakes" target="_blank" rel="noopener">https://github.com/golang/go/wiki/CommonMistakes</a></p>
+<p>看，golang官方其实知道这是个常见的错误，所以专门开辟了一个wiki page来讲述这个common mistakes，然后还给出解法，但是感觉还是有点儿反人类。</p>
+<p>such is life.</p>
+]]></content>
+      <categories>
+        <category>Golang</category>
+      </categories>
+      <tags>
+        <tag>陷阱</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Golang不可不知的十大陷阱（二）- gob decode会把指向0的指针变为nil</title>
-    <url>/2020/03/15/golang-tricky-2/</url>
+    <url>/2020/03/15/code/golang-tricky-2/</url>
     <content><![CDATA[<p>俗话说得好，golang一时爽，一直golang一直爽.</p>
 <p>最近公司也在从Python逐渐迁往Golang，在迁移的过程中不得不感叹这世界还有golang这么吊吊的语言，完全就是爱用就用不用就拉到的架势，让人又爱又恨.</p>
 <p>今天开始我们来慢慢盘点下踩到的那些神级坑。</p>
@@ -51,7 +100,7 @@
   </entry>
   <entry>
     <title>Mybatis 分页插件PageHelper，告别重复代码 - JAVA</title>
-    <url>/2020/04/10/java-pagehelper/</url>
+    <url>/2020/04/10/code/java-pagehelper/</url>
     <content><![CDATA[<p>写代码时总会碰到各种各样的分页操作，纵然你用了Mybatis之类的ORM框架，还是无法避免重复的分页代码。</p>
 <p>完善的Java生态自然有成熟的解决方案，比较流行的一个解法是使用PageHelper插件。</p>
 <a id="more"></a>
@@ -88,42 +137,8 @@ PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。
       </tags>
   </entry>
   <entry>
-    <title>Golang不可不知的十大陷阱（一）- for循环取地址</title>
-    <url>/2020/03/11/golang-tricky-1/</url>
-    <content><![CDATA[<p>俗话说得好，golang一时爽，一直golang一直爽.</p>
-<p>最近公司也在从Python逐渐迁往Golang，在迁移的过程中不得不感叹这世界还有golang这么吊吊的语言，完全就是爱用就用不用就拉到的架势，让人又爱又恨.</p>
-<p>今天开始我们来慢慢盘点下踩到的那些神级坑。
-第一章，我们从for循环取地址的神级坑开始。</p>
-<a id="more"></a>
-
-<hr>
-<p>今天天气灰常的好，心情不错，小明来到了公司，这时候他的同事小亮告诉他昨天的function已经ready可以调用了，小明蹦蹦跳跳的调用了下函数：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">type DemoStruct struct &#123;</span><br><span class="line">	DemoValue string &#96;json:&quot;demo_value&quot;&#96;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func XiaoLiangFunction() ([]DemoStruct, error) &#123;</span><br><span class="line">	demoArray :&#x3D; make([]DemoStruct, 3)</span><br><span class="line">	demoArray[0] &#x3D; DemoStruct&#123;DemoValue: &quot;1&quot;&#125;</span><br><span class="line">	demoArray[1] &#x3D; DemoStruct&#123;DemoValue: &quot;2&quot;&#125;</span><br><span class="line">	demoArray[2] &#x3D; DemoStruct&#123;DemoValue: &quot;3&quot;&#125;</span><br><span class="line">	return demoArray, nil</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>但是小明习惯用指针，想把返回值[]DemoStruct转换成[]*DemoStruct。</p>
-<p>心中默念了声**后，小明开始了一天的劳作，终于在下班前：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line"></span><br><span class="line">	demoArray, _ :&#x3D; XiaoLiangFunction()</span><br><span class="line">	demoArrayAddress :&#x3D; make([]*DemoStruct, 3)</span><br><span class="line"></span><br><span class="line">	for index, demoValue :&#x3D; range demoArray &#123;</span><br><span class="line">		demoArrayAddress[index] &#x3D; &amp;demoValue</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(demoArrayAddress)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>背上书包，click run，准备在结果出现的那一刻潇洒转身，差点儿闪了自己的老腰：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[0xc000010200 0xc000010200 0xc000010200]</span><br></pre></td></tr></table></figure>
-<p>居然数组所有指针元素的地址都是一模一样的！！</p>
-<p>这时，夕阳西下，小明又开始了新一晚的劳作。</p>
-<h3 id="why？"><a href="#why？" class="headerlink" title="why？"></a>why？</h3><p>其实这个bug并不难理解，循环变量demoValue在生成后，之后的循环一直被重复调用，所以才产生这个结果。</p>
-<p>最简单的解法是在取地址前加一行<code>demoValue := demoValue</code>,最终的结果就是</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line"></span><br><span class="line">	demoArray, _ :&#x3D; XiaoLiangFunction()</span><br><span class="line">	demoArrayAddress :&#x3D; make([]*DemoStruct, 3)</span><br><span class="line"></span><br><span class="line">	for index, demoValue :&#x3D; range demoArray &#123;</span><br><span class="line">		demoValue :&#x3D; demoValue</span><br><span class="line">		demoArrayAddress[index] &#x3D; &amp;demoValue</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(demoArrayAddress)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>看起来是不是不是很优雅？其实这是<strong>golang官方推荐的解法</strong></p>
-<p>详情见：<a href="https://github.com/golang/go/wiki/CommonMistakes" target="_blank" rel="noopener">https://github.com/golang/go/wiki/CommonMistakes</a></p>
-<p>看，golang官方其实知道这是个常见的错误，所以专门开辟了一个wiki page来讲述这个common mistakes，然后还给出解法，但是感觉还是有点儿反人类。</p>
-<p>such is life.</p>
-]]></content>
-      <categories>
-        <category>Golang</category>
-      </categories>
-      <tags>
-        <tag>陷阱</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>支付加密中的字典序排序（ASCII码排序）以及MD5 SHA256加密 -JAVA</title>
-    <url>/2020/03/23/java-tricky-1/</url>
+    <url>/2020/03/23/code/java-tricky-1/</url>
     <content><![CDATA[<p>在做业务开发，特别是支付相关的业务时，可能会碰到需要将入参按照字典序排序后再MD5或者SHA256加密的问题。
 例如：
 <img src="https://i.loli.net/2020/03/23/c4jrTpekvLGtEh9.png" alt="Screenshot 2020-03-23 at 10.53.54 PM.png"></p>
@@ -148,58 +163,8 @@ PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。
       </tags>
   </entry>
   <entry>
-    <title>闲说何为技术能力</title>
-    <url>/2020/03/12/zatan-1/</url>
-    <content><![CDATA[<p>转眼已经工作快五年了。</p>
-<p>总觉得时间好像开了一个玩笑，五年前，总是充满激情满含热泪的写代码到深夜，对第二天的工作充满憧憬。如今已然变成了一个略显油腻的略显油腻的搬砖小能手。意料之外，想象之中呐。</p>
-<p>写了这么多年代码，仔细想想，大部分的时间是不是都在重复同样的劳动？无论是一开始在北京搜狐，还是后来去了杭州，在阿里修了两年
-福报，还是现在在shopee。所谓技术能力的高低真的能在工作中成长吗？</p>
-<a id="more"></a>
-
-<p>历史告诉我们最大的教训就是我们从来不从历史中吸取教训，在公司工作的时候，总会觉得自己的事情特别有意义，特别有价值，是不是？
-大家其实都陷入到了一个怪圈，就是对大公司而言，它的目标并不是让大家都变得很强，而是让大家都变成一颗坚实的螺丝钉，在任何时刻
-都不掉链子。</p>
-<p>所以第一个结论，在公司的工作并不会让自己的写代码能力变得更强，更重要的是锻炼自己的与人协作、沟通、推动一件事情的能力，也即是所谓的软实力
-，当然如果你天天只知闷头写代码，若干年后你肯定会吃亏的。</p>
-<p>那么，到底什么才是真正的技术能力？</p>
-<p>找工作的时候最重要的是什么？根据我两次换工作的经验，自然是刷题啦。</p>
-<p>但是刷题强真的就是技术能力强吗？你有见过哪个业界大佬是刷题大佬？我就不信每个GitHub star上万的作者都会旋转红黑树。</p>
-<p>所以第二个结论，刷题也不会让自己的写代码能力变得更强，只会让自己的装逼能力变得更强，这也是我对刷题一直嗤之以鼻的原因。</p>
-<p>那么，到底什么才是真正的技术能力？</p>
-<p>试想，程序员之间互喷最多的是什么？就是你tm到底懂不懂我在说什么。</p>
-<p>为什么你以为我不懂你在说什么？</p>
-<p>因为凭借我的技术能力并不足以从一个全面的角度来解决你所提出的问题，不能够给出一个让你完全信服的解决方案。
-注意信服的解决方案，并不是让你满意的解决方案，而是一个让你不管心里爽不爽都不由得没话说的解决方案。</p>
-<p>所以，在我看来，一个程序员技术能力的强大与否，在于解决问题的能力。</p>
-<p>看起来是不是我说了一堆没用的话。</p>
-<p>想想你是不是每天在公司搬砖，每天在刷题，有培养了自己的技术能力吗？</p>
-]]></content>
-      <categories>
-        <category>杂谈</category>
-      </categories>
-      <tags>
-        <tag>瞎扯</tag>
-        <tag>代码</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>黄金的个人博客开通啦</title>
-    <url>/2020/03/09/open-blog/</url>
-    <content><![CDATA[<p>真正意义上的个人博客吧</p>
-<p>总是犯懒，懒得总结</p>
-<p>作为一个非典型的程序员，还是希望能坚持记录一些对自己有用的东西</p>
-<p>普通coder，做一个普通writer</p>
-]]></content>
-      <categories>
-        <category>杂谈</category>
-      </categories>
-      <tags>
-        <tag>瞎扯</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>最常用的Markdown语法</title>
-    <url>/2020/04/10/markdown-normal/</url>
+    <url>/2020/04/10/code/markdown-normal/</url>
     <content><![CDATA[<p>Markdown是一种纯文本格式的标记语言。通过简单的标记语法，它可以使普通文本内容具有一定的格式。</p>
 <p>相比WYSIWYG编辑器</p>
 <p>优点：
@@ -458,8 +423,43 @@ fun();</p>
       </tags>
   </entry>
   <entry>
+    <title>闲说何为技术能力</title>
+    <url>/2020/03/12/zatan/zatan-1/</url>
+    <content><![CDATA[<p>转眼已经工作快五年了。</p>
+<p>总觉得时间好像开了一个玩笑，五年前，总是充满激情满含热泪的写代码到深夜，对第二天的工作充满憧憬。如今已然变成了一个略显油腻的略显油腻的搬砖小能手。意料之外，想象之中呐。</p>
+<p>写了这么多年代码，仔细想想，大部分的时间是不是都在重复同样的劳动？无论是一开始在北京搜狐，还是后来去了杭州，在阿里修了两年
+福报，还是现在在shopee。所谓技术能力的高低真的能在工作中成长吗？</p>
+<a id="more"></a>
+
+<p>历史告诉我们最大的教训就是我们从来不从历史中吸取教训，在公司工作的时候，总会觉得自己的事情特别有意义，特别有价值，是不是？
+大家其实都陷入到了一个怪圈，就是对大公司而言，它的目标并不是让大家都变得很强，而是让大家都变成一颗坚实的螺丝钉，在任何时刻
+都不掉链子。</p>
+<p>所以第一个结论，在公司的工作并不会让自己的写代码能力变得更强，更重要的是锻炼自己的与人协作、沟通、推动一件事情的能力，也即是所谓的软实力
+，当然如果你天天只知闷头写代码，若干年后你肯定会吃亏的。</p>
+<p>那么，到底什么才是真正的技术能力？</p>
+<p>找工作的时候最重要的是什么？根据我两次换工作的经验，自然是刷题啦。</p>
+<p>但是刷题强真的就是技术能力强吗？你有见过哪个业界大佬是刷题大佬？我就不信每个GitHub star上万的作者都会旋转红黑树。</p>
+<p>所以第二个结论，刷题也不会让自己的写代码能力变得更强，只会让自己的装逼能力变得更强，这也是我对刷题一直嗤之以鼻的原因。</p>
+<p>那么，到底什么才是真正的技术能力？</p>
+<p>试想，程序员之间互喷最多的是什么？就是你tm到底懂不懂我在说什么。</p>
+<p>为什么你以为我不懂你在说什么？</p>
+<p>因为凭借我的技术能力并不足以从一个全面的角度来解决你所提出的问题，不能够给出一个让你完全信服的解决方案。
+注意信服的解决方案，并不是让你满意的解决方案，而是一个让你不管心里爽不爽都不由得没话说的解决方案。</p>
+<p>所以，在我看来，一个程序员技术能力的强大与否，在于解决问题的能力。</p>
+<p>看起来是不是我说了一堆没用的话。</p>
+<p>想想你是不是每天在公司搬砖，每天在刷题，有培养了自己的技术能力吗？</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>瞎扯</tag>
+        <tag>代码</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>《13,67》读后观感</title>
-    <url>/2020/05/10/zatan-1367/</url>
+    <url>/2020/05/10/zatan/zatan-1367/</url>
     <content><![CDATA[<p>《13，67》，最近读了陈浩基的小说，并没有当代的那种浮夸感，他的小说读起来会让人觉得很真实。看了下陈浩基本身是计算机系毕业的，理科生的
 小说总是会比较理性一点，所以读起来会缺少一些文采，但是故事的逻辑性非常强。</p>
 <figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">我們以為自己走在正確的道路上，</span><br><span class="line">為什麼走著走著，人生卻變了樣？</span><br><span class="line">第一本讓我們感到驕傲的華文警察小說最高傑作！</span><br></pre></td></tr></table></figure>
@@ -486,7 +486,7 @@ fun();</p>
   </entry>
   <entry>
     <title>闲说-什么是最好的IDE</title>
-    <url>/2020/03/22/zatan-best-ide/</url>
+    <url>/2020/03/22/zatan/zatan-best-ide/</url>
     <content><![CDATA[<p>朴实善良的程序员在一天的8到18个小时的工作时间里，面对最多的莫过于自己的浏览器和IDE。</p>
 <p>浏览器没什么好说的，也没什么好选的，除了Chrome还有啥？</p>
 <p>但是IDE呢，又是一场圣战，vim党，vs code派，atom大法好，以及鼓吹jetbrains是真正的IDE，blablabla，眼花缭乱，有人告诉我其实notepad也不错嗯……</p>
@@ -527,7 +527,7 @@ fun();</p>
   </entry>
   <entry>
     <title>许久没更新</title>
-    <url>/2021/06/25/zatan-best-restart/</url>
+    <url>/2021/06/25/zatan/zatan-best-restart/</url>
     <content><![CDATA[<p>真的好久没有更新博客，惭愧(⊙ˍ⊙)</p>
 <p>一转眼一年过去了，也是有娃的人了</p>
 <p>人生还是要坚持做一些事情，不然和一个咸鱼有什么区别</p>
@@ -541,8 +541,76 @@ fun();</p>
       </tags>
   </entry>
   <entry>
+    <title>论奇特的&quot;牺牲式满足感&quot;</title>
+    <url>/2021/06/27/zatan/zatan-china-happiness/</url>
+    <content><![CDATA[<p>黄豆豆来到这个世界后，带给了我一个月的假期，恰逢新加坡疫情反复不能出门，只能在家无聊的读书来读书去，思考一些
+杂七杂八的事情。</p>
+<p>孩子带来的不仅仅是生活方式上的变化，更多的是心理上的变化，心态上的不同。</p>
+<p>最直接的比如说奶粉买什么牌子，隔多久洗澡，隔多久喂奶等。</p>
+<p>长远的比如讲幼儿园在哪里上，要不要回国念小学，如何培养孩子的国家认同感等。</p>
+<p>在这些事情上，我发现了一个很有意思的现象，很难去界定这到底是中国式的现象还是说只是新一代年轻人的现象，
+我想称之为”牺牲式满足感”。</p>
+<a id="more"></a>
+
+<ol>
+<li>奶粉不知道哪一种最好，在超市晃来晃去，最后就买最贵的。</li>
+<li>听说国内的月子中心，价格从5万，到10万，到15万，极端的甚至有30万的，越贵的显得越好。</li>
+<li>坐月子洗澡的话，有受凉的风险，所以很多人来劝告说一个月绝对不能洗澡，即使现在是空调遍地走的21世纪。</li>
+<li>坐月子吹风的话可能会受凉留病根，所以很多人来劝告说必须门窗紧闭，穿袜子戴头套，不能下床。</li>
+<li>坐月子开骨缝，要避免剧烈运动，所以很多人来劝告说不能弯腰，不能拿东西，手绝对不能用劲儿。</li>
+<li>孩子教育是一辈子的大事儿，所以必须买最好的学区房，去最好的学校，给老师送最好的礼，即使工资的80%都还房贷。</li>
+<li>年轻人需要能吃苦能奋斗，不能安于现状，所以干脆就毫不享乐，主动榨干自己所有的剩余价值，美其名曰”吃苦奋斗”。</li>
+</ol>
+<p>例子太多，给我的感觉就是，很走极端。幸好我的家人比较开明，但是盲猜国内有一大批人都是按照这个思路在生活。</p>
+<p>逻辑大概就是： “年轻人需要做what，不能总是how” -&gt; 为了凸显自己重视，就”只做what，丝毫不how” -&gt; 获得一种极大地满足感</p>
+<ol>
+<li>奶粉最重要的是能否给予孩子足够的营养，贵就一定可以达到这个目标吗？</li>
+<li>去月子中心的原本目的是为了产妇产后恢复，剖腹产和顺产，体质好的人体质差的人，恢复机制能一样吗，而现在的去月子中心是为了跟别人吹嘘我坐的月子贵。</li>
+<li>不洗澡会滋生病菌，但是没人在乎，反正不能洗。</li>
+<li>门窗紧闭不通风同样会滋生病菌，并且产妇出汗太多容易虚脱，但是同样没人在乎，反正不能洗。</li>
+<li>完全不懂，最保险的做法可能是把手打个麻醉，这样就什么都拿不了了。</li>
+<li>孩子的教育会受到多方面因素的影响，最重要的是引导孩子成为一个独立自主有自己想法和思考的人，买学区房就能达到目的吗？</li>
+<li>上班能发财吗？不能，那为什么要死命加班呢？因为想发财？</li>
+</ol>
+<p>牺牲自己的业余时间，降低自己的生活水平，让自己变得异常忙碌，
+根本不去思考自己的努力方向对不对，在乎的只是自己的付出多不多，然后从自己的无私奉献和牺牲中赚取极大地幸福感和满足感。</p>
+<p>若干年后给自己的评语是：我做出了极大地牺牲！</p>
+<p>只能说卷真的是无处不在。</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>瞎扯</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>《高智商犯罪》VS《低智商犯罪》读后观感</title>
+    <url>/2020/06/06/zatan/zatan-fanzui/</url>
+    <content><![CDATA[<p>紫金陈，不温不火的小说作家，第一次知道还是读《长夜难明》，从九点到半夜三点一口气读完。</p>
+<p>挺喜欢他的风格的，不浮夸，比较写实风，里边的人物都是实实在在的小人物（反观某些”著名”推理小说作家，高中生靠想象秒杀全场）。</p>
+<p>我是先读的《低智商犯罪》，后读的《高智商犯罪》，两本书的故事线其实是相通的，只是风格完全不同。</p>
+<p>《高智商犯罪》是相对比较严肃的文风，大部分文笔在描述犯罪的细节以及人物的心理变化上。读时会让人拍案叫绝。</p>
+<p>《低智商犯罪》是完全的荒诞式喜剧风，书中人物没有一次推理正确，误打误撞，读后回味无穷，笑出猪叫。</p>
+<a id="more"></a>
+
+<p>紫金陈在豆瓣上说《低智商犯罪》是他最喜欢的一本书，花费的时间比其他书都多。</p>
+<p>相比两本书来讲（当然都是很不错的书），我也是更喜欢《低智商犯罪》。</p>
+<p>《高智商犯罪》的推理更加缜密，但是《低智商犯罪》让人觉得这就是生活呀，这可能就是生活中实实在在在发生的事情。</p>
+<p>作者着实下了一番功夫，多线叙事，最后很自然的汇合在一起。</p>
+<p>文风浮夸，显得比较”粗糙”，但是是下功夫的那种粗糙，文风和故事非常契合。</p>
+<p>诚挚推荐。</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>读书</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>论如何做好情绪管理</title>
-    <url>/2020/06/01/zatan-mood-control/</url>
+    <url>/2020/06/01/zatan/zatan-mood-control/</url>
     <content><![CDATA[<p>最近工作有点儿累，各种新feature层出不穷，各种project扑面而来，各种bug此起彼伏。</p>
 <p>每天大脑都处于一种高速的奔波状态。</p>
 <p>有时候停下来想要想一想到底为什么，后来发现想不明白，莫名火起，特别是再一不小心碰到工作上的不合作，不协调，有些人故意找事儿等等。</p>
@@ -571,7 +639,7 @@ fun();</p>
   </entry>
   <entry>
     <title>南朝悠悠</title>
-    <url>/2020/06/27/zatan-nanchao/</url>
+    <url>/2020/06/27/zatan/zatan-nanchao/</url>
     <content><![CDATA[<p>南朝四百八十寺，多少楼台烟雨中。</p>
 <p>唏嘘哀哉，如今天朝互联网公司无数，码农遍地，百年以后，全部归于烟雨。</p>
 <p>多少996，没有任何用。</p>
@@ -583,30 +651,6 @@ fun();</p>
         <tag>瞎扯</tag>
         <tag>代码</tag>
         <tag>一本正经</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>《高智商犯罪》VS《低智商犯罪》读后观感</title>
-    <url>/2020/06/06/zatan-fanzui/</url>
-    <content><![CDATA[<p>紫金陈，不温不火的小说作家，第一次知道还是读《长夜难明》，从九点到半夜三点一口气读完。</p>
-<p>挺喜欢他的风格的，不浮夸，比较写实风，里边的人物都是实实在在的小人物（反观某些”著名”推理小说作家，高中生靠想象秒杀全场）。</p>
-<p>我是先读的《低智商犯罪》，后读的《高智商犯罪》，两本书的故事线其实是相通的，只是风格完全不同。</p>
-<p>《高智商犯罪》是相对比较严肃的文风，大部分文笔在描述犯罪的细节以及人物的心理变化上。读时会让人拍案叫绝。</p>
-<p>《低智商犯罪》是完全的荒诞式喜剧风，书中人物没有一次推理正确，误打误撞，读后回味无穷，笑出猪叫。</p>
-<a id="more"></a>
-
-<p>紫金陈在豆瓣上说《低智商犯罪》是他最喜欢的一本书，花费的时间比其他书都多。</p>
-<p>相比两本书来讲（当然都是很不错的书），我也是更喜欢《低智商犯罪》。</p>
-<p>《高智商犯罪》的推理更加缜密，但是《低智商犯罪》让人觉得这就是生活呀，这可能就是生活中实实在在在发生的事情。</p>
-<p>作者着实下了一番功夫，多线叙事，最后很自然的汇合在一起。</p>
-<p>文风浮夸，显得比较”粗糙”，但是是下功夫的那种粗糙，文风和故事非常契合。</p>
-<p>诚挚推荐。</p>
-]]></content>
-      <categories>
-        <category>杂谈</category>
-      </categories>
-      <tags>
-        <tag>读书</tag>
       </tags>
   </entry>
 </search>

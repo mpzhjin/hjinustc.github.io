@@ -198,7 +198,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://hjinustc.com/2020/03/12/zatan-1/">
+    <link itemprop="mainEntityOfPage" href="http://hjinustc.com/2020/03/15/code/golang-tricky-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -212,7 +212,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/03/12/zatan-1/" class="post-title-link" itemprop="url">闲说何为技术能力</a>
+            <a href="/2020/03/15/code/golang-tricky-2/" class="post-title-link" itemprop="url">Golang不可不知的十大陷阱（二）- gob decode会把指向0的指针变为nil</a>
         </h2>
 
         <div class="post-meta">
@@ -223,7 +223,7 @@
               <span class="post-meta-item-text">发表于</span>
               
 
-              <time title="创建时间：2020-03-12 21:09:10 / 修改时间：21:52:48" itemprop="dateCreated datePublished" datetime="2020-03-12T21:09:10+08:00">2020-03-12</time>
+              <time title="创建时间：2020-03-15 13:22:17 / 修改时间：13:59:16" itemprop="dateCreated datePublished" datetime="2020-03-15T13:22:17+08:00">2020-03-15</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -231,12 +231,12 @@
               </span>
               <span class="post-meta-item-text">分类于</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/%E6%9D%82%E8%B0%88/" itemprop="url" rel="index"><span itemprop="name">杂谈</span></a>
+                  <a href="/categories/Golang/" itemprop="url" rel="index"><span itemprop="name">Golang</span></a>
                 </span>
             </span>
 
           
-            <span id="/2020/03/12/zatan-1/" class="post-meta-item leancloud_visitors" data-flag-title="闲说何为技术能力" title="阅读次数">
+            <span id="/2020/03/15/code/golang-tricky-2/" class="post-meta-item leancloud_visitors" data-flag-title="Golang不可不知的十大陷阱（二）- gob decode会把指向0的指针变为nil" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -251,8 +251,8 @@
       </span>
       <span class="post-meta-item-text">评论数：</span>
     
-    <a title="valine" href="/2020/03/12/zatan-1/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/12/zatan-1/" itemprop="commentCount"></span>
+    <a title="valine" href="/2020/03/15/code/golang-tricky-2/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/15/code/golang-tricky-2/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -267,13 +267,13 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p>转眼已经工作快五年了。</p>
-<p>总觉得时间好像开了一个玩笑，五年前，总是充满激情满含热泪的写代码到深夜，对第二天的工作充满憧憬。如今已然变成了一个略显油腻的略显油腻的搬砖小能手。意料之外，想象之中呐。</p>
-<p>写了这么多年代码，仔细想想，大部分的时间是不是都在重复同样的劳动？无论是一开始在北京搜狐，还是后来去了杭州，在阿里修了两年
-福报，还是现在在shopee。所谓技术能力的高低真的能在工作中成长吗？</p>
+          <p>俗话说得好，golang一时爽，一直golang一直爽.</p>
+<p>最近公司也在从Python逐渐迁往Golang，在迁移的过程中不得不感叹这世界还有golang这么吊吊的语言，完全就是爱用就用不用就拉到的架势，让人又爱又恨.</p>
+<p>今天开始我们来慢慢盘点下踩到的那些神级坑。</p>
+<p>第二章，我们来探索下gob是怎么把指向0的指针变为nil。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/03/12/zatan-1/#more" rel="contents">
+              <a class="btn" href="/2020/03/15/code/golang-tricky-2/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -297,7 +297,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://hjinustc.com/2020/03/11/golang-tricky-1/">
+    <link itemprop="mainEntityOfPage" href="http://hjinustc.com/2020/03/12/zatan/zatan-1/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/images/avatar.jpg">
@@ -311,7 +311,106 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2020/03/11/golang-tricky-1/" class="post-title-link" itemprop="url">Golang不可不知的十大陷阱（一）- for循环取地址</a>
+            <a href="/2020/03/12/zatan/zatan-1/" class="post-title-link" itemprop="url">闲说何为技术能力</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2020-03-12 21:09:10 / 修改时间：21:52:48" itemprop="dateCreated datePublished" datetime="2020-03-12T21:09:10+08:00">2020-03-12</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%9D%82%E8%B0%88/" itemprop="url" rel="index"><span itemprop="name">杂谈</span></a>
+                </span>
+            </span>
+
+          
+            <span id="/2020/03/12/zatan/zatan-1/" class="post-meta-item leancloud_visitors" data-flag-title="闲说何为技术能力" title="阅读次数">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-eye"></i>
+              </span>
+              <span class="post-meta-item-text">阅读次数：</span>
+              <span class="leancloud-visitors-count"></span>
+            </span>
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="fa fa-comment-o"></i>
+      </span>
+      <span class="post-meta-item-text">评论数：</span>
+    
+    <a title="valine" href="/2020/03/12/zatan/zatan-1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/12/zatan/zatan-1/" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>转眼已经工作快五年了。</p>
+<p>总觉得时间好像开了一个玩笑，五年前，总是充满激情满含热泪的写代码到深夜，对第二天的工作充满憧憬。如今已然变成了一个略显油腻的略显油腻的搬砖小能手。意料之外，想象之中呐。</p>
+<p>写了这么多年代码，仔细想想，大部分的时间是不是都在重复同样的劳动？无论是一开始在北京搜狐，还是后来去了杭州，在阿里修了两年
+福报，还是现在在shopee。所谓技术能力的高低真的能在工作中成长吗？</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/03/12/zatan/zatan-1/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+          
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block home" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://hjinustc.com/2020/03/11/code/golang-tricky-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Huang Jin">
+      <meta itemprop="description" content="普通coder，普通writer">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="黄金">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/03/11/code/golang-tricky-1/" class="post-title-link" itemprop="url">Golang不可不知的十大陷阱（一）- for循环取地址</a>
         </h2>
 
         <div class="post-meta">
@@ -335,7 +434,7 @@
             </span>
 
           
-            <span id="/2020/03/11/golang-tricky-1/" class="post-meta-item leancloud_visitors" data-flag-title="Golang不可不知的十大陷阱（一）- for循环取地址" title="阅读次数">
+            <span id="/2020/03/11/code/golang-tricky-1/" class="post-meta-item leancloud_visitors" data-flag-title="Golang不可不知的十大陷阱（一）- for循环取地址" title="阅读次数">
               <span class="post-meta-item-icon">
                 <i class="fa fa-eye"></i>
               </span>
@@ -350,8 +449,8 @@
       </span>
       <span class="post-meta-item-text">评论数：</span>
     
-    <a title="valine" href="/2020/03/11/golang-tricky-1/#valine-comments" itemprop="discussionUrl">
-      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/11/golang-tricky-1/" itemprop="commentCount"></span>
+    <a title="valine" href="/2020/03/11/code/golang-tricky-1/#valine-comments" itemprop="discussionUrl">
+      <span class="post-comments-count valine-comment-count" data-xid="/2020/03/11/code/golang-tricky-1/" itemprop="commentCount"></span>
     </a>
   </span>
   
@@ -372,7 +471,7 @@
 第一章，我们从for循环取地址的神级坑开始。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2020/03/11/golang-tricky-1/#more" rel="contents">
+              <a class="btn" href="/2020/03/11/code/golang-tricky-1/#more" rel="contents">
                 阅读全文 &raquo;
               </a>
             </div>
@@ -562,7 +661,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">13</span>
+          <span class="site-state-item-count">14</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -615,8 +714,6 @@
     <footer class="footer">
       <div class="footer-inner">
         
-  <div class="beian"><a href="http://www.beian.miit.gov.cn/" rel="noopener" target="_blank">null </a>
-  </div>
 
 <div class="copyright">
   
