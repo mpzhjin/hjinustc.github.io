@@ -16,67 +16,37 @@
       </tags>
   </entry>
   <entry>
-    <title>支付加密中的字典序排序（ASCII码排序）以及MD5 SHA256加密 -JAVA</title>
-    <url>/2020/03/23/code/java-tricky-1/</url>
-    <content><![CDATA[<p>在做业务开发，特别是支付相关的业务时，可能会碰到需要将入参按照字典序排序后再MD5或者SHA256加密的问题。
-例如：
-<img src="https://i.loli.net/2020/03/23/c4jrTpekvLGtEh9.png" alt="Screenshot 2020-03-23 at 10.53.54 PM.png"></p>
-<p>那么如何用JAVA来快速实现呢？</p>
+    <title>Golang不可不知的十大陷阱（一）- for循环取地址</title>
+    <url>/2020/03/11/code/golang-tricky-1/</url>
+    <content><![CDATA[<p>俗话说得好，golang一时爽，一直golang一直爽.</p>
+<p>最近公司也在从Python逐渐迁往Golang，在迁移的过程中不得不感叹这世界还有golang这么吊吊的语言，完全就是爱用就用不用就拉到的架势，让人又爱又恨.</p>
+<p>今天开始我们来慢慢盘点下踩到的那些神级坑。
+第一章，我们从for循环取地址的神级坑开始。</p>
 <a id="more"></a>
 
-<p>其实很简单，简单到只需要一行代码</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Collections.sort(keys);</span><br></pre></td></tr></table></figure>
-<p>一般来讲我们会用map来存储所有的参数，所以整体的实现就是：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 把数组所有元素排序，并按照“参数&#x3D;参数值”的模式用“&amp;”字符拼接成字符串</span><br><span class="line"> *</span><br><span class="line"> * @param params 需要排序并参与字符拼接的参数组</span><br><span class="line"> * @return 拼接后字符串</span><br><span class="line"> *&#x2F;</span><br><span class="line">public static String createLinkString(Map&lt;String, String&gt; params) &#123;</span><br><span class="line">    List&lt;String&gt; keys &#x3D; new ArrayList&lt;&gt;(params.keySet());</span><br><span class="line">    Collections.sort(keys);</span><br><span class="line">    String prestr &#x3D; &quot;&quot;;</span><br><span class="line">    for (int i &#x3D; 0; i &lt; keys.size(); i++) &#123;</span><br><span class="line">        String key &#x3D; keys.get(i);</span><br><span class="line">        String value &#x3D; params.get(key);</span><br><span class="line">        if (i &#x3D;&#x3D; keys.size() - 1) &#123;&#x2F;&#x2F; 拼接时，不包括最后一个&amp;字符</span><br><span class="line">            prestr &#x3D; prestr + key + &quot;&#x3D;&quot; + value;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            prestr &#x3D; prestr + key + &quot;&#x3D;&quot; + value + &quot;&amp;&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return prestr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>附上MD5的Java实现</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public static String sign(String text, String key, String input_charset) &#123;</span><br><span class="line">    text &#x3D; text + &quot;&amp;key&#x3D;&quot; + key;</span><br><span class="line">    return DigestUtils.md5Hex(getContentBytes(text, input_charset));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>SHA256的Java实现</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Mac sha256_HMAC &#x3D; Mac.getInstance(&quot;HmacSHA256&quot;);</span><br><span class="line">sha256_HMAC.init(new SecretKeySpec(WechatConfig.key.getBytes(), &quot;HmacSHA256&quot;));</span><br><span class="line">byte[] result &#x3D; sha256_HMAC.doFinal(prestr.getBytes());</span><br><span class="line">String sign &#x3D; DatatypeConverter.printHexBinary(result).toUpperCase();</span><br></pre></td></tr></table></figure>
+<hr>
+<p>今天天气灰常的好，心情不错，小明来到了公司，这时候他的同事小亮告诉他昨天的function已经ready可以调用了，小明蹦蹦跳跳的调用了下函数：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">type DemoStruct struct &#123;</span><br><span class="line">	DemoValue string &#96;json:&quot;demo_value&quot;&#96;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func XiaoLiangFunction() ([]DemoStruct, error) &#123;</span><br><span class="line">	demoArray :&#x3D; make([]DemoStruct, 3)</span><br><span class="line">	demoArray[0] &#x3D; DemoStruct&#123;DemoValue: &quot;1&quot;&#125;</span><br><span class="line">	demoArray[1] &#x3D; DemoStruct&#123;DemoValue: &quot;2&quot;&#125;</span><br><span class="line">	demoArray[2] &#x3D; DemoStruct&#123;DemoValue: &quot;3&quot;&#125;</span><br><span class="line">	return demoArray, nil</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是小明习惯用指针，想把返回值[]DemoStruct转换成[]*DemoStruct。</p>
+<p>心中默念了声**后，小明开始了一天的劳作，终于在下班前：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line"></span><br><span class="line">	demoArray, _ :&#x3D; XiaoLiangFunction()</span><br><span class="line">	demoArrayAddress :&#x3D; make([]*DemoStruct, 3)</span><br><span class="line"></span><br><span class="line">	for index, demoValue :&#x3D; range demoArray &#123;</span><br><span class="line">		demoArrayAddress[index] &#x3D; &amp;demoValue</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(demoArrayAddress)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>背上书包，click run，准备在结果出现的那一刻潇洒转身，差点儿闪了自己的老腰：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[0xc000010200 0xc000010200 0xc000010200]</span><br></pre></td></tr></table></figure>
+<p>居然数组所有指针元素的地址都是一模一样的！！</p>
+<p>这时，夕阳西下，小明又开始了新一晚的劳作。</p>
+<h3 id="why？"><a href="#why？" class="headerlink" title="why？"></a>why？</h3><p>其实这个bug并不难理解，循环变量demoValue在生成后，之后的循环一直被重复调用，所以才产生这个结果。</p>
+<p>最简单的解法是在取地址前加一行<code>demoValue := demoValue</code>,最终的结果就是</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line"></span><br><span class="line">	demoArray, _ :&#x3D; XiaoLiangFunction()</span><br><span class="line">	demoArrayAddress :&#x3D; make([]*DemoStruct, 3)</span><br><span class="line"></span><br><span class="line">	for index, demoValue :&#x3D; range demoArray &#123;</span><br><span class="line">		demoValue :&#x3D; demoValue</span><br><span class="line">		demoArrayAddress[index] &#x3D; &amp;demoValue</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(demoArrayAddress)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看起来是不是不是很优雅？其实这是<strong>golang官方推荐的解法</strong></p>
+<p>详情见：<a href="https://github.com/golang/go/wiki/CommonMistakes" target="_blank" rel="noopener">https://github.com/golang/go/wiki/CommonMistakes</a></p>
+<p>看，golang官方其实知道这是个常见的错误，所以专门开辟了一个wiki page来讲述这个common mistakes，然后还给出解法，但是感觉还是有点儿反人类。</p>
+<p>such is life.</p>
 ]]></content>
       <categories>
-        <category>Java</category>
+        <category>Golang</category>
       </categories>
       <tags>
-        <tag>小技巧</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Mybatis 分页插件PageHelper，告别重复代码 - JAVA</title>
-    <url>/2020/04/10/code/java-pagehelper/</url>
-    <content><![CDATA[<p>写代码时总会碰到各种各样的分页操作，纵然你用了Mybatis之类的ORM框架，还是无法避免重复的分页代码。</p>
-<p>完善的Java生态自然有成熟的解决方案，比较流行的一个解法是使用PageHelper插件。</p>
-<a id="more"></a>
-
-<p>PageHelper插件官方地址： <a href="https://github.com/pagehelper/Mybatis-PageHelper" target="_blank" rel="noopener">https://github.com/pagehelper/Mybatis-PageHelper</a></p>
-<p>简单来讲，PageHelper插件会帮你把你的selectALl语句自动转换为一个分页查询的sql，<strong>并且给你返回详细的分页信息</strong>。</p>
-<p>话不多说，直接上例子。</p>
-<p>在Spring已然成为Java业界的事实标准的情况下，我们只聊Spring Boot。</p>
-<h3 id="引入依赖"><a href="#引入依赖" class="headerlink" title="引入依赖"></a>引入依赖</h3><p>不同的spring版本可能需要不同的pageHelper版本，推荐使用<strong>1.2.13</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">         &lt;!--MyBatis分页插件starter--&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;com.github.pagehelper&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;pagehelper-spring-boot-starter&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;version&gt;$&#123;pagehelper-starter.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="写代码"><a href="#写代码" class="headerlink" title="写代码"></a>写代码</h3><p>代码示例</p>
-<ul>
-<li><code>PageHelper.startPage(pageNum, pageSize)</code> 这一句会作用于下面的第一个查询语句。</li>
-<li>PageHelper的pageNum是从1开始，不是从0开始！</li>
-<li>PageInfo可以获取所有的分页信息。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PageHelper.startPage(pageNum, pageSize);</span><br><span class="line">PmsProductExample example &#x3D; new PmsProductExample();</span><br><span class="line">PmsProductExample.Criteria criteria &#x3D; example.createCriteria();</span><br><span class="line">criteria.andDeleteStatusEqualTo(0)</span><br><span class="line">        .andPublishStatusEqualTo(1);</span><br><span class="line">if (categoryId !&#x3D; null) &#123;</span><br><span class="line">    criteria.andProductCategoryIdEqualTo(categoryId);</span><br><span class="line">&#125;</span><br><span class="line">example.setOrderByClause(&quot;id desc&quot;);</span><br><span class="line">List&lt;PmsProduct&gt; pmsProducts &#x3D; productMapper.selectByExample(example);</span><br><span class="line"></span><br><span class="line">PageInfo&lt;PmsProduct&gt; pageInfo &#x3D; new PageInfo&lt;&gt;(pmsProducts);</span><br></pre></td></tr></table></figure>
-其中PageInfo包含了分页所需的所有信息，如下：
-<img src="https://i.loli.net/2020/04/10/gdif5XqtZju1srY.png" alt="PageInfo.png"></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pageNum当前页 </span><br><span class="line">pageSize每页的数量 </span><br><span class="line">size当前页的数量 </span><br><span class="line">orderBy排序</span><br><span class="line">startRow当前页面第一个元素在数据库中的行号 </span><br><span class="line">endRow当前页面最后一个元素在数据库中的行号 </span><br><span class="line">total总记录数(在这里也就是查询到的用户总数)</span><br><span class="line">pages总页数 (这个页数也很好算，每页5条，总共有11条，需要3页才可以显示完) </span><br><span class="line">list结果集 </span><br><span class="line">prePage前一页 </span><br><span class="line">nextPage下一页 </span><br><span class="line">isFirstPage是否为第一页 </span><br><span class="line">isLastPage是否为最后一页 </span><br><span class="line">hasPreviousPage是否有前一页 </span><br><span class="line">hasNextPage是否有下一页 </span><br><span class="line">navigatePages导航页码数 </span><br><span class="line">navigatepageNums所有导航页号</span><br><span class="line">navigateFirstPage导航第一页 </span><br><span class="line">navigateLastPage导航最后一页 </span><br><span class="line">firstPage第一页 </span><br><span class="line">lastPage最后一页</span><br></pre></td></tr></table></figure>
-<p>非常详细，应有尽有，基本可以满足我们的所有日常业务需求。</p>
-<h3 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h3><p>PageHelper 方法使用了静态的<code>ThreadLocal</code>参数，分页参数和线程是绑定的。只要你可以保证在 PageHelper 方法调用后紧跟 MyBatis 查询方法，这就是安全的。
-PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。</p>
-<p>但是千万不要写成下面这样</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PageHelper.startPage(1, 10);</span><br><span class="line">List&lt;Country&gt; list;</span><br><span class="line">if(param1 !&#x3D; null)&#123;</span><br><span class="line">    list &#x3D; countryMapper.selectIf(param1);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">    list &#x3D; new ArrayList&lt;Country&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>就不讲为什么了。</p>
-<p>国人写的一款分页插件，让我感觉自己就是代码的搬运工。</p>
-]]></content>
-      <categories>
-        <category>Java</category>
-      </categories>
-      <tags>
-        <tag>小技巧</tag>
+        <tag>陷阱</tag>
       </tags>
   </entry>
   <entry>
@@ -129,78 +99,29 @@ PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。
       </tags>
   </entry>
   <entry>
-    <title>Golang不可不知的十大陷阱（一）- for循环取地址</title>
-    <url>/2020/03/11/code/golang-tricky-1/</url>
-    <content><![CDATA[<p>俗话说得好，golang一时爽，一直golang一直爽.</p>
-<p>最近公司也在从Python逐渐迁往Golang，在迁移的过程中不得不感叹这世界还有golang这么吊吊的语言，完全就是爱用就用不用就拉到的架势，让人又爱又恨.</p>
-<p>今天开始我们来慢慢盘点下踩到的那些神级坑。
-第一章，我们从for循环取地址的神级坑开始。</p>
+    <title>支付加密中的字典序排序（ASCII码排序）以及MD5 SHA256加密 -JAVA</title>
+    <url>/2020/03/23/code/java-tricky-1/</url>
+    <content><![CDATA[<p>在做业务开发，特别是支付相关的业务时，可能会碰到需要将入参按照字典序排序后再MD5或者SHA256加密的问题。
+例如：
+<img src="https://i.loli.net/2020/03/23/c4jrTpekvLGtEh9.png" alt="Screenshot 2020-03-23 at 10.53.54 PM.png"></p>
+<p>那么如何用JAVA来快速实现呢？</p>
 <a id="more"></a>
 
-<hr>
-<p>今天天气灰常的好，心情不错，小明来到了公司，这时候他的同事小亮告诉他昨天的function已经ready可以调用了，小明蹦蹦跳跳的调用了下函数：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">type DemoStruct struct &#123;</span><br><span class="line">	DemoValue string &#96;json:&quot;demo_value&quot;&#96;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">func XiaoLiangFunction() ([]DemoStruct, error) &#123;</span><br><span class="line">	demoArray :&#x3D; make([]DemoStruct, 3)</span><br><span class="line">	demoArray[0] &#x3D; DemoStruct&#123;DemoValue: &quot;1&quot;&#125;</span><br><span class="line">	demoArray[1] &#x3D; DemoStruct&#123;DemoValue: &quot;2&quot;&#125;</span><br><span class="line">	demoArray[2] &#x3D; DemoStruct&#123;DemoValue: &quot;3&quot;&#125;</span><br><span class="line">	return demoArray, nil</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>但是小明习惯用指针，想把返回值[]DemoStruct转换成[]*DemoStruct。</p>
-<p>心中默念了声**后，小明开始了一天的劳作，终于在下班前：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line"></span><br><span class="line">	demoArray, _ :&#x3D; XiaoLiangFunction()</span><br><span class="line">	demoArrayAddress :&#x3D; make([]*DemoStruct, 3)</span><br><span class="line"></span><br><span class="line">	for index, demoValue :&#x3D; range demoArray &#123;</span><br><span class="line">		demoArrayAddress[index] &#x3D; &amp;demoValue</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(demoArrayAddress)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>背上书包，click run，准备在结果出现的那一刻潇洒转身，差点儿闪了自己的老腰：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[0xc000010200 0xc000010200 0xc000010200]</span><br></pre></td></tr></table></figure>
-<p>居然数组所有指针元素的地址都是一模一样的！！</p>
-<p>这时，夕阳西下，小明又开始了新一晚的劳作。</p>
-<h3 id="why？"><a href="#why？" class="headerlink" title="why？"></a>why？</h3><p>其实这个bug并不难理解，循环变量demoValue在生成后，之后的循环一直被重复调用，所以才产生这个结果。</p>
-<p>最简单的解法是在取地址前加一行<code>demoValue := demoValue</code>,最终的结果就是</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">func main() &#123;</span><br><span class="line"></span><br><span class="line">	demoArray, _ :&#x3D; XiaoLiangFunction()</span><br><span class="line">	demoArrayAddress :&#x3D; make([]*DemoStruct, 3)</span><br><span class="line"></span><br><span class="line">	for index, demoValue :&#x3D; range demoArray &#123;</span><br><span class="line">		demoValue :&#x3D; demoValue</span><br><span class="line">		demoArrayAddress[index] &#x3D; &amp;demoValue</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	fmt.Println(demoArrayAddress)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>看起来是不是不是很优雅？其实这是<strong>golang官方推荐的解法</strong></p>
-<p>详情见：<a href="https://github.com/golang/go/wiki/CommonMistakes" target="_blank" rel="noopener">https://github.com/golang/go/wiki/CommonMistakes</a></p>
-<p>看，golang官方其实知道这是个常见的错误，所以专门开辟了一个wiki page来讲述这个common mistakes，然后还给出解法，但是感觉还是有点儿反人类。</p>
-<p>such is life.</p>
-]]></content>
-      <categories>
-        <category>Golang</category>
-      </categories>
-      <tags>
-        <tag>陷阱</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>读水浒</title>
-    <url>/2021/07/01/reading/zatan-shui-hu-zhuan/</url>
-    <content><![CDATA[<p>难得的一个月的假期，碰上疫情哪里都去不了，读了很多书。</p>
-<p>水浒是我最近读的比较专注的一本，上学时候怎么都读不下去这本书，只是模糊的记得几个著名的片段，武松打虎，
-鲁智深倒把垂杨柳之类的。</p>
-<p>时隔这么多年后重读这本书，观感和以前从杂志，网上，从各类文章里评论的水浒都不同。</p>
-<p>可能是一千个人有一千个水浒。</p>
-<a id="more"></a>
+<p>其实很简单，简单到只需要一行代码</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Collections.sort(keys);</span><br></pre></td></tr></table></figure>
+<p>一般来讲我们会用map来存储所有的参数，所以整体的实现就是：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">&#x2F;**</span><br><span class="line"> * 把数组所有元素排序，并按照“参数&#x3D;参数值”的模式用“&amp;”字符拼接成字符串</span><br><span class="line"> *</span><br><span class="line"> * @param params 需要排序并参与字符拼接的参数组</span><br><span class="line"> * @return 拼接后字符串</span><br><span class="line"> *&#x2F;</span><br><span class="line">public static String createLinkString(Map&lt;String, String&gt; params) &#123;</span><br><span class="line">    List&lt;String&gt; keys &#x3D; new ArrayList&lt;&gt;(params.keySet());</span><br><span class="line">    Collections.sort(keys);</span><br><span class="line">    String prestr &#x3D; &quot;&quot;;</span><br><span class="line">    for (int i &#x3D; 0; i &lt; keys.size(); i++) &#123;</span><br><span class="line">        String key &#x3D; keys.get(i);</span><br><span class="line">        String value &#x3D; params.get(key);</span><br><span class="line">        if (i &#x3D;&#x3D; keys.size() - 1) &#123;&#x2F;&#x2F; 拼接时，不包括最后一个&amp;字符</span><br><span class="line">            prestr &#x3D; prestr + key + &quot;&#x3D;&quot; + value;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            prestr &#x3D; prestr + key + &quot;&#x3D;&quot; + value + &quot;&amp;&quot;;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    return prestr;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<p>第一个感觉是 “真实”，整本书充满了打打杀杀，英雄人物很多，但是也都很意气用事，动不动就灭了对方全家，
-为了劝对方上山直接伪造诗文等等，跟我们传统印象中的武侠人物那种风度翩翩，快意恩仇的形象大相径庭，完全就是
-一群古惑仔在一起。</p>
-<p>第二个感觉是 “愚忠”，大家如果没有读过水浒，只看过电视剧或者别人写的作文，鉴赏文章，很容易认为所有的错
-都在宋江一个人，甚至幻想着如果没有宋江，梁山好汉可能会推翻朝廷自立为王之类的，但是从小说中看，梁山好汉
-中大部分都是倾向于招安的，宋江只是一个推进者和沟通者的角色。甚至在之后打辽国，灭田虎王庆，平方腊判断，
-都是部下主动请求想借之建功立业报销朝廷的。</p>
-<p>三十六天罡中，真正不想招安的可能也就阮氏三雄，李逵，武松等寥寥几人而已。</p>
-<p>第三个感觉是”逆天改命难于上青天”，书中写到了三十六天罡，七十二地煞其实都是上天的安排，那么我个人以为，
-在打辽国，灭田虎王庆的时候全员得胜而归，但是在平方腊的时候死伤大几十人，这不就是上天的警告吗？平方腊
-真的比打辽国难吗？不见得，而且书中已经明确指明了很多人是由于途中感染瘟疫而死，或者失足落马而已，甚至
-直接被淹死，由此可见宋江这股逆天而行的平方腊并没有好下场。</p>
-<p>第四个感觉是”人心隔肚皮”，表面义薄云天为朋友两肋插刀，反手就是一波手里刀。大家讨论最多的阴谋论是宋江杀死了
-晁盖，根据我的阅读此说法并不可信，书中并没有任何显式或隐式的交代，比较像是后人意淫出来的。</p>
-<p>但是本书中好汉之间的各种小动作是层出不穷，比如鲁智深一路护送林冲，刚离开林冲反手就”无意间”透漏鲁智深的工作地点
-给官差，再比如燕青为了卢俊义上刀山下火山，但是卢俊义就只是把燕青看做一个狗奴才，再比如说朱武作为神机军师就是个
-渣渣，其实毛都不会就知道送人头， 这些都是比较隐式的写法，需要结合上下文来理解，但是其实不难发现。</p>
-<p>显式的一个例子最后宋江被毒酒害死之前怕李逵造反就反手把李逵也毒死了，这不坑爹吗，
-大家就算是过命的交情也不至于你怀疑我可能对你名声不利，就非要堵死我吧？这交情真的有毒啊？</p>
-<p>北宋末年的朝廷腐败无度，奸臣当道，但是作者并没有花特别大的篇幅去讲朝廷上发生的事儿，而是通过书写底层人民的生活
-去讲好汉们被逼上梁山的故事，来侧面反映时代的变化，通过以上的一二三四让人又有种亲临的感觉。</p>
-<p>读完之后唏嘘不已，一切看似本有机会去逆天改命，细看之又是命中注定，时代所致。</p>
-<p>有机会要重新再看一看。</p>
+<p>附上MD5的Java实现</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public static String sign(String text, String key, String input_charset) &#123;</span><br><span class="line">    text &#x3D; text + &quot;&amp;key&#x3D;&quot; + key;</span><br><span class="line">    return DigestUtils.md5Hex(getContentBytes(text, input_charset));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>SHA256的Java实现</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Mac sha256_HMAC &#x3D; Mac.getInstance(&quot;HmacSHA256&quot;);</span><br><span class="line">sha256_HMAC.init(new SecretKeySpec(WechatConfig.key.getBytes(), &quot;HmacSHA256&quot;));</span><br><span class="line">byte[] result &#x3D; sha256_HMAC.doFinal(prestr.getBytes());</span><br><span class="line">String sign &#x3D; DatatypeConverter.printHexBinary(result).toUpperCase();</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>杂谈</category>
+        <category>Java</category>
       </categories>
       <tags>
-        <tag>读书</tag>
+        <tag>小技巧</tag>
       </tags>
   </entry>
   <entry>
@@ -464,6 +385,153 @@ fun();</p>
       </tags>
   </entry>
   <entry>
+    <title>读水浒</title>
+    <url>/2021/07/01/reading/zatan-shui-hu-zhuan/</url>
+    <content><![CDATA[<p>难得的一个月的假期，碰上疫情哪里都去不了，读了很多书。</p>
+<p>水浒是我最近读的比较专注的一本，上学时候怎么都读不下去这本书，只是模糊的记得几个著名的片段，武松打虎，
+鲁智深倒把垂杨柳之类的。</p>
+<p>时隔这么多年后重读这本书，观感和以前从杂志，网上，从各类文章里评论的水浒都不同。</p>
+<p>可能是一千个人有一千个水浒。</p>
+<a id="more"></a>
+
+<p>第一个感觉是 “真实”，整本书充满了打打杀杀，英雄人物很多，但是也都很意气用事，动不动就灭了对方全家，
+为了劝对方上山直接伪造诗文等等，跟我们传统印象中的武侠人物那种风度翩翩，快意恩仇的形象大相径庭，完全就是
+一群古惑仔在一起。</p>
+<p>第二个感觉是 “愚忠”，大家如果没有读过水浒，只看过电视剧或者别人写的作文，鉴赏文章，很容易认为所有的错
+都在宋江一个人，甚至幻想着如果没有宋江，梁山好汉可能会推翻朝廷自立为王之类的，但是从小说中看，梁山好汉
+中大部分都是倾向于招安的，宋江只是一个推进者和沟通者的角色。甚至在之后打辽国，灭田虎王庆，平方腊判断，
+都是部下主动请求想借之建功立业报销朝廷的。</p>
+<p>三十六天罡中，真正不想招安的可能也就阮氏三雄，李逵，武松等寥寥几人而已。</p>
+<p>第三个感觉是”逆天改命难于上青天”，书中写到了三十六天罡，七十二地煞其实都是上天的安排，那么我个人以为，
+在打辽国，灭田虎王庆的时候全员得胜而归，但是在平方腊的时候死伤大几十人，这不就是上天的警告吗？平方腊
+真的比打辽国难吗？不见得，而且书中已经明确指明了很多人是由于途中感染瘟疫而死，或者失足落马而已，甚至
+直接被淹死，由此可见宋江这股逆天而行的平方腊并没有好下场。</p>
+<p>第四个感觉是”人心隔肚皮”，表面义薄云天为朋友两肋插刀，反手就是一波手里刀。大家讨论最多的阴谋论是宋江杀死了
+晁盖，根据我的阅读此说法并不可信，书中并没有任何显式或隐式的交代，比较像是后人意淫出来的。</p>
+<p>但是本书中好汉之间的各种小动作是层出不穷，比如鲁智深一路护送林冲，刚离开林冲反手就”无意间”透漏鲁智深的工作地点
+给官差，再比如燕青为了卢俊义上刀山下火山，但是卢俊义就只是把燕青看做一个狗奴才，再比如说朱武作为神机军师就是个
+渣渣，其实毛都不会就知道送人头， 这些都是比较隐式的写法，需要结合上下文来理解，但是其实不难发现。</p>
+<p>显式的一个例子最后宋江被毒酒害死之前怕李逵造反就反手把李逵也毒死了，这不坑爹吗，
+大家就算是过命的交情也不至于你怀疑我可能对你名声不利，就非要堵死我吧？这交情真的有毒啊？</p>
+<p>北宋末年的朝廷腐败无度，奸臣当道，但是作者并没有花特别大的篇幅去讲朝廷上发生的事儿，而是通过书写底层人民的生活
+去讲好汉们被逼上梁山的故事，来侧面反映时代的变化，通过以上的一二三四让人又有种亲临的感觉。</p>
+<p>读完之后唏嘘不已，一切看似本有机会去逆天改命，细看之又是命中注定，时代所致。</p>
+<p>有机会要重新再看一看。</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>读书</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Mybatis 分页插件PageHelper，告别重复代码 - JAVA</title>
+    <url>/2020/04/10/code/java-pagehelper/</url>
+    <content><![CDATA[<p>写代码时总会碰到各种各样的分页操作，纵然你用了Mybatis之类的ORM框架，还是无法避免重复的分页代码。</p>
+<p>完善的Java生态自然有成熟的解决方案，比较流行的一个解法是使用PageHelper插件。</p>
+<a id="more"></a>
+
+<p>PageHelper插件官方地址： <a href="https://github.com/pagehelper/Mybatis-PageHelper" target="_blank" rel="noopener">https://github.com/pagehelper/Mybatis-PageHelper</a></p>
+<p>简单来讲，PageHelper插件会帮你把你的selectALl语句自动转换为一个分页查询的sql，<strong>并且给你返回详细的分页信息</strong>。</p>
+<p>话不多说，直接上例子。</p>
+<p>在Spring已然成为Java业界的事实标准的情况下，我们只聊Spring Boot。</p>
+<h3 id="引入依赖"><a href="#引入依赖" class="headerlink" title="引入依赖"></a>引入依赖</h3><p>不同的spring版本可能需要不同的pageHelper版本，推荐使用<strong>1.2.13</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">         &lt;!--MyBatis分页插件starter--&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;com.github.pagehelper&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;pagehelper-spring-boot-starter&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;version&gt;$&#123;pagehelper-starter.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="写代码"><a href="#写代码" class="headerlink" title="写代码"></a>写代码</h3><p>代码示例</p>
+<ul>
+<li><code>PageHelper.startPage(pageNum, pageSize)</code> 这一句会作用于下面的第一个查询语句。</li>
+<li>PageHelper的pageNum是从1开始，不是从0开始！</li>
+<li>PageInfo可以获取所有的分页信息。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PageHelper.startPage(pageNum, pageSize);</span><br><span class="line">PmsProductExample example &#x3D; new PmsProductExample();</span><br><span class="line">PmsProductExample.Criteria criteria &#x3D; example.createCriteria();</span><br><span class="line">criteria.andDeleteStatusEqualTo(0)</span><br><span class="line">        .andPublishStatusEqualTo(1);</span><br><span class="line">if (categoryId !&#x3D; null) &#123;</span><br><span class="line">    criteria.andProductCategoryIdEqualTo(categoryId);</span><br><span class="line">&#125;</span><br><span class="line">example.setOrderByClause(&quot;id desc&quot;);</span><br><span class="line">List&lt;PmsProduct&gt; pmsProducts &#x3D; productMapper.selectByExample(example);</span><br><span class="line"></span><br><span class="line">PageInfo&lt;PmsProduct&gt; pageInfo &#x3D; new PageInfo&lt;&gt;(pmsProducts);</span><br></pre></td></tr></table></figure>
+其中PageInfo包含了分页所需的所有信息，如下：
+<img src="https://i.loli.net/2020/04/10/gdif5XqtZju1srY.png" alt="PageInfo.png"></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pageNum当前页 </span><br><span class="line">pageSize每页的数量 </span><br><span class="line">size当前页的数量 </span><br><span class="line">orderBy排序</span><br><span class="line">startRow当前页面第一个元素在数据库中的行号 </span><br><span class="line">endRow当前页面最后一个元素在数据库中的行号 </span><br><span class="line">total总记录数(在这里也就是查询到的用户总数)</span><br><span class="line">pages总页数 (这个页数也很好算，每页5条，总共有11条，需要3页才可以显示完) </span><br><span class="line">list结果集 </span><br><span class="line">prePage前一页 </span><br><span class="line">nextPage下一页 </span><br><span class="line">isFirstPage是否为第一页 </span><br><span class="line">isLastPage是否为最后一页 </span><br><span class="line">hasPreviousPage是否有前一页 </span><br><span class="line">hasNextPage是否有下一页 </span><br><span class="line">navigatePages导航页码数 </span><br><span class="line">navigatepageNums所有导航页号</span><br><span class="line">navigateFirstPage导航第一页 </span><br><span class="line">navigateLastPage导航最后一页 </span><br><span class="line">firstPage第一页 </span><br><span class="line">lastPage最后一页</span><br></pre></td></tr></table></figure>
+<p>非常详细，应有尽有，基本可以满足我们的所有日常业务需求。</p>
+<h3 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h3><p>PageHelper 方法使用了静态的<code>ThreadLocal</code>参数，分页参数和线程是绑定的。只要你可以保证在 PageHelper 方法调用后紧跟 MyBatis 查询方法，这就是安全的。
+PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。</p>
+<p>但是千万不要写成下面这样</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PageHelper.startPage(1, 10);</span><br><span class="line">List&lt;Country&gt; list;</span><br><span class="line">if(param1 !&#x3D; null)&#123;</span><br><span class="line">    list &#x3D; countryMapper.selectIf(param1);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">    list &#x3D; new ArrayList&lt;Country&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就不讲为什么了。</p>
+<p>国人写的一款分页插件，让我感觉自己就是代码的搬运工。</p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>小技巧</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>《13,67》读后观感</title>
+    <url>/2020/05/10/zatan/zatan-1367/</url>
+    <content><![CDATA[<p>《13，67》，最近读了陈浩基的小说，并没有当代的那种浮夸感，他的小说读起来会让人觉得很真实。看了下陈浩基本身是计算机系毕业的，理科生的
+小说总是会比较理性一点，所以读起来会缺少一些文采，但是故事的逻辑性非常强。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">我們以為自己走在正確的道路上，</span><br><span class="line">為什麼走著走著，人生卻變了樣？</span><br><span class="line">第一本讓我們感到驕傲的華文警察小說最高傑作！</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+
+<p>豆瓣上的内容简介，华文警察小说最高杰作。</p>
+<p>讲真的我没读出来那种感觉。</p>
+<p>这本书确实很不错，真的，但是并没有感觉是9.1的高分巨作。</p>
+<p>想了下可能因为自己不是香港人，陈浩基的小说或多或少都会跟香港的整个历史背景有关系，也注定了他的小说在内地很难过审。
+例如这本书，从1967年跨越到2013年，每个故事都跟当时的香港的时代背景息息相关。作者在悬疑推理的基础上，更多的是想
+写出香港的时代风云变幻。</p>
+<p>可能只有香港人会有强烈的共鸣吧，虽然没去过香港，但是我总觉得香港人有一种天然上的优越感，可能制度上的优越会不知不觉的
+以为自己在各个方面都先进。</p>
+<p>如果让我给这本书打分，可能在7-8分之间，非常优秀的一本推理小说。</p>
+<p>值得一读。但是只能是属于香港人的推理巅峰之作了。</p>
+<p>有空还是能去香港看看。</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>读书</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>闲说-什么是最好的IDE</title>
+    <url>/2020/03/22/zatan/zatan-best-ide/</url>
+    <content><![CDATA[<p>朴实善良的程序员在一天的8到18个小时的工作时间里，面对最多的莫过于自己的浏览器和IDE。</p>
+<p>浏览器没什么好说的，也没什么好选的，除了Chrome还有啥？</p>
+<p>但是IDE呢，又是一场圣战，vim党，vs code派，atom大法好，以及鼓吹jetbrains是真正的IDE，blablabla，眼花缭乱，有人告诉我其实notepad也不错嗯……</p>
+<p>那么到底什么才是最好的IDE呢？？</p>
+<a id="more"></a>
+
+<p>我也曾经迷失在这个问题里，在之前四年的Java生涯里，总是在eclipse和IDEA之间徘徊，换来换去，甚至公司用一种，家里用一种，每每睡不着觉，我都在思索，
+明天到底应该用哪个？</p>
+<p>来到了新加坡，换了Python，以为自己终于可以开心的做个vim党，谁知道vs code突然异军突起，更加坑爹的是IDEA的公司居然还有pycharm！！！
+在用vs code做了entry task后，还是毅然决然的头像了pycharm的怀抱。</p>
+<p>无数个日日夜夜，辗转反侧，我在质问自己，为什么不用vs code?微软大法不香吗？免费不香吗？（说得好像为IDEA付过费）紧跟vs code的时代洪流不好吗？
+那么多插件难道不能把这个编辑器打造成一款足以媲美IDEA的编辑器吗？？</p>
+<p>在忍住了无数个想要投向vs code的想法后，终于有一天，一个哥们儿告诉我他在用notepad写代码，我突然领悟了，到底什么才是最好的IDE。</p>
+<p>实践是检验真理的唯一标准，那么什么是检验IDE的唯一标准呢？</p>
+<p>在我看来，答案是：</p>
+<ul>
+<li>快捷键</li>
+</ul>
+<p>对，所谓最好的IDE，就是你知道快捷键最多的IDE！！</p>
+<p>同志们，好好想一想，IDE是为了帮助我们干什么？写代码出来，写代码过程中，什么最能加快我们的产出？网速吗？不可能，必然是快捷键。</p>
+<p>毕竟，你是为了写code，不是为了炫IDE，再说了难道高端IDE写出来的代码编译出来的字节码更加优美吗？没区别，跑在服务器上，不一样是0101010101</p>
+<p>所以，只要专注于一款IDE，并且用熟用透，能够用快捷键加快一切值得加快的地方，这就是最好的IDE。</p>
+<p>最后说一句：</p>
+<ul>
+<li>工具只是作为你实现东西的方式，跟最终的结果没有直接的关系。</li>
+<li>属性点不够的人，总想着用装备来凑。</li>
+</ul>
+<p>最近疫情严重，反而倍感时间过的很快，一转眼又是一周，愿阳光能够杀灭所有的病毒，阴天总会过去。</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>瞎扯</tag>
+        <tag>代码</tag>
+        <tag>一本正经</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>论奇特的&quot;牺牲式满足感&quot;</title>
     <url>/2021/06/27/zatan/zatan-china-happiness/</url>
     <content><![CDATA[<p>黄豆豆来到这个世界后，带给了我一个月的假期，恰逢新加坡疫情反复不能出门，只能在家无聊的读书来读书去，思考一些
@@ -515,44 +583,27 @@ fun();</p>
       </tags>
   </entry>
   <entry>
-    <title>闲说-什么是最好的IDE</title>
-    <url>/2020/03/22/zatan/zatan-best-ide/</url>
-    <content><![CDATA[<p>朴实善良的程序员在一天的8到18个小时的工作时间里，面对最多的莫过于自己的浏览器和IDE。</p>
-<p>浏览器没什么好说的，也没什么好选的，除了Chrome还有啥？</p>
-<p>但是IDE呢，又是一场圣战，vim党，vs code派，atom大法好，以及鼓吹jetbrains是真正的IDE，blablabla，眼花缭乱，有人告诉我其实notepad也不错嗯……</p>
-<p>那么到底什么才是最好的IDE呢？？</p>
+    <title>《高智商犯罪》VS《低智商犯罪》读后观感</title>
+    <url>/2020/06/06/zatan/zatan-fanzui/</url>
+    <content><![CDATA[<p>紫金陈，不温不火的小说作家，第一次知道还是读《长夜难明》，从九点到半夜三点一口气读完。</p>
+<p>挺喜欢他的风格的，不浮夸，比较写实风，里边的人物都是实实在在的小人物（反观某些”著名”推理小说作家，高中生靠想象秒杀全场）。</p>
+<p>我是先读的《低智商犯罪》，后读的《高智商犯罪》，两本书的故事线其实是相通的，只是风格完全不同。</p>
+<p>《高智商犯罪》是相对比较严肃的文风，大部分文笔在描述犯罪的细节以及人物的心理变化上。读时会让人拍案叫绝。</p>
+<p>《低智商犯罪》是完全的荒诞式喜剧风，书中人物没有一次推理正确，误打误撞，读后回味无穷，笑出猪叫。</p>
 <a id="more"></a>
 
-<p>我也曾经迷失在这个问题里，在之前四年的Java生涯里，总是在eclipse和IDEA之间徘徊，换来换去，甚至公司用一种，家里用一种，每每睡不着觉，我都在思索，
-明天到底应该用哪个？</p>
-<p>来到了新加坡，换了Python，以为自己终于可以开心的做个vim党，谁知道vs code突然异军突起，更加坑爹的是IDEA的公司居然还有pycharm！！！
-在用vs code做了entry task后，还是毅然决然的头像了pycharm的怀抱。</p>
-<p>无数个日日夜夜，辗转反侧，我在质问自己，为什么不用vs code?微软大法不香吗？免费不香吗？（说得好像为IDEA付过费）紧跟vs code的时代洪流不好吗？
-那么多插件难道不能把这个编辑器打造成一款足以媲美IDEA的编辑器吗？？</p>
-<p>在忍住了无数个想要投向vs code的想法后，终于有一天，一个哥们儿告诉我他在用notepad写代码，我突然领悟了，到底什么才是最好的IDE。</p>
-<p>实践是检验真理的唯一标准，那么什么是检验IDE的唯一标准呢？</p>
-<p>在我看来，答案是：</p>
-<ul>
-<li>快捷键</li>
-</ul>
-<p>对，所谓最好的IDE，就是你知道快捷键最多的IDE！！</p>
-<p>同志们，好好想一想，IDE是为了帮助我们干什么？写代码出来，写代码过程中，什么最能加快我们的产出？网速吗？不可能，必然是快捷键。</p>
-<p>毕竟，你是为了写code，不是为了炫IDE，再说了难道高端IDE写出来的代码编译出来的字节码更加优美吗？没区别，跑在服务器上，不一样是0101010101</p>
-<p>所以，只要专注于一款IDE，并且用熟用透，能够用快捷键加快一切值得加快的地方，这就是最好的IDE。</p>
-<p>最后说一句：</p>
-<ul>
-<li>工具只是作为你实现东西的方式，跟最终的结果没有直接的关系。</li>
-<li>属性点不够的人，总想着用装备来凑。</li>
-</ul>
-<p>最近疫情严重，反而倍感时间过的很快，一转眼又是一周，愿阳光能够杀灭所有的病毒，阴天总会过去。</p>
+<p>紫金陈在豆瓣上说《低智商犯罪》是他最喜欢的一本书，花费的时间比其他书都多。</p>
+<p>相比两本书来讲（当然都是很不错的书），我也是更喜欢《低智商犯罪》。</p>
+<p>《高智商犯罪》的推理更加缜密，但是《低智商犯罪》让人觉得这就是生活呀，这可能就是生活中实实在在在发生的事情。</p>
+<p>作者着实下了一番功夫，多线叙事，最后很自然的汇合在一起。</p>
+<p>文风浮夸，显得比较”粗糙”，但是是下功夫的那种粗糙，文风和故事非常契合。</p>
+<p>诚挚推荐。</p>
 ]]></content>
       <categories>
         <category>杂谈</category>
       </categories>
       <tags>
-        <tag>瞎扯</tag>
-        <tag>代码</tag>
-        <tag>一本正经</tag>
+        <tag>读书</tag>
       </tags>
   </entry>
   <entry>
@@ -606,69 +657,28 @@ fun();</p>
       </tags>
   </entry>
   <entry>
-    <title>《13,67》读后观感</title>
-    <url>/2020/05/10/zatan/zatan-1367/</url>
-    <content><![CDATA[<p>《13，67》，最近读了陈浩基的小说，并没有当代的那种浮夸感，他的小说读起来会让人觉得很真实。看了下陈浩基本身是计算机系毕业的，理科生的
-小说总是会比较理性一点，所以读起来会缺少一些文采，但是故事的逻辑性非常强。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">我們以為自己走在正確的道路上，</span><br><span class="line">為什麼走著走著，人生卻變了樣？</span><br><span class="line">第一本讓我們感到驕傲的華文警察小說最高傑作！</span><br></pre></td></tr></table></figure>
+    <title>上海隔离小记</title>
+    <url>/2020/08/09/zatan/zatan-geli/</url>
+    <content><![CDATA[<p>距离上次写又是一个月，哈哈，斑马斑马，你不要睡着啦。</p>
+<p>从安排回国，到突然就出发了，突然就降落了，突然就到酒店隔离了，突然就隔离一周了，讲真的记忆有点儿模糊，就觉得一切好像突然就发生了。</p>
 <a id="more"></a>
 
-<p>豆瓣上的内容简介，华文警察小说最高杰作。</p>
-<p>讲真的我没读出来那种感觉。</p>
-<p>这本书确实很不错，真的，但是并没有感觉是9.1的高分巨作。</p>
-<p>想了下可能因为自己不是香港人，陈浩基的小说或多或少都会跟香港的整个历史背景有关系，也注定了他的小说在内地很难过审。
-例如这本书，从1967年跨越到2013年，每个故事都跟当时的香港的时代背景息息相关。作者在悬疑推理的基础上，更多的是想
-写出香港的时代风云变幻。</p>
-<p>可能只有香港人会有强烈的共鸣吧，虽然没去过香港，但是我总觉得香港人有一种天然上的优越感，可能制度上的优越会不知不觉的
-以为自己在各个方面都先进。</p>
-<p>如果让我给这本书打分，可能在7-8分之间，非常优秀的一本推理小说。</p>
-<p>值得一读。但是只能是属于香港人的推理巅峰之作了。</p>
-<p>有空还是能去香港看看。</p>
-]]></content>
-      <categories>
-        <category>杂谈</category>
-      </categories>
-      <tags>
-        <tag>读书</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>《高智商犯罪》VS《低智商犯罪》读后观感</title>
-    <url>/2020/06/06/zatan/zatan-fanzui/</url>
-    <content><![CDATA[<p>紫金陈，不温不火的小说作家，第一次知道还是读《长夜难明》，从九点到半夜三点一口气读完。</p>
-<p>挺喜欢他的风格的，不浮夸，比较写实风，里边的人物都是实实在在的小人物（反观某些”著名”推理小说作家，高中生靠想象秒杀全场）。</p>
-<p>我是先读的《低智商犯罪》，后读的《高智商犯罪》，两本书的故事线其实是相通的，只是风格完全不同。</p>
-<p>《高智商犯罪》是相对比较严肃的文风，大部分文笔在描述犯罪的细节以及人物的心理变化上。读时会让人拍案叫绝。</p>
-<p>《低智商犯罪》是完全的荒诞式喜剧风，书中人物没有一次推理正确，误打误撞，读后回味无穷，笑出猪叫。</p>
-<a id="more"></a>
-
-<p>紫金陈在豆瓣上说《低智商犯罪》是他最喜欢的一本书，花费的时间比其他书都多。</p>
-<p>相比两本书来讲（当然都是很不错的书），我也是更喜欢《低智商犯罪》。</p>
-<p>《高智商犯罪》的推理更加缜密，但是《低智商犯罪》让人觉得这就是生活呀，这可能就是生活中实实在在在发生的事情。</p>
-<p>作者着实下了一番功夫，多线叙事，最后很自然的汇合在一起。</p>
-<p>文风浮夸，显得比较”粗糙”，但是是下功夫的那种粗糙，文风和故事非常契合。</p>
-<p>诚挚推荐。</p>
-]]></content>
-      <categories>
-        <category>杂谈</category>
-      </categories>
-      <tags>
-        <tag>读书</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>南朝悠悠</title>
-    <url>/2020/06/27/zatan/zatan-nanchao/</url>
-    <content><![CDATA[<p>南朝四百八十寺，多少楼台烟雨中。</p>
-<p>唏嘘哀哉，如今天朝互联网公司无数，码农遍地，百年以后，全部归于烟雨。</p>
-<p>多少996，没有任何用。</p>
+<p>对于工作，其实并没有任何影响， 该做的事情还是要做，程序员的工作只需要一个好的电脑和好的WiFi，实在不行手机流量也可以顶上。</p>
+<p>对于生活，早就习惯了居家办公的我，非常适应隔离的生活，早上起的甚至比平时还早，一日三餐有人送饭，吃的时候还可以刷刷B站，两次测温，三天一次核酸，晚上跟着youtuber一起做做居家健身，洗个澡，刷书视频，睡觉。</p>
+<p>心态上没有变化是假的，自从有了黄豆豆后，心态每天都在变，想追求简单的生活，偏偏工作忙的出奇。想突破自己，偏偏年中晋升AM失败。想培养一个自己的兴趣爱好，偏偏找不到任何可以让自己十分着迷的话题。</p>
+<p>最近一个人隔离，不停的刷B站，刷YouTube，看着那么多up主有自己追求，在一件事儿上不断推陈出新，尝试新的花样，着实羡慕，反观自己，如果离开目前的工作岗位，其实自己没有任何可以骄傲的地方。</p>
+<p>真的很想培养下自己的兴趣爱好，在某个方向，某件事儿上面，持之以恒的不断突破，可是不知道怎么开始，好无奈。</p>
+<p>最近把银他妈刷完了，算是终于刷完了吧，从大学开始，第一次接触就成为我最喜欢的动漫，这些年不停的看，工作后看得少了，听说完结后其实一直不舍得去刷最新的剧集，这下子好嘛，看完就真的没了。用王家卫的话讲，不知道从什么时候开始，在什么东西上面都有个日期，秋刀鱼会过期，肉罐头会过期，连保鲜纸都会过期，我开始怀疑，在这个世界上，还有什么东西是不会过期的？还有什么东西是不会完结的？</p>
+<p>银魂这些年推出的其实并没有很喜欢，没有以前那些日常吸引人，印象最深刻的还是以前的一个个短片，只能说，那就是自己羡慕的生活。</p>
+<p>印象最为深刻的还是那句，”国家？天空？给你好了，无所谓，我光保护眼前的东西就已经够忙了。”</p>
+<p>真的，保护眼前的东西，就已经够忙了。</p>
+<p>现在的我坐在房间窗前，外面上海的小马路，看起来应该是老城区，电动车，汽车，大家都在忙碌着。听着宋冬野的董小姐，敲着键盘，只希望这属于自己的一刻，不要太快溜走。</p>
 ]]></content>
       <categories>
         <category>杂谈</category>
       </categories>
       <tags>
         <tag>瞎扯</tag>
-        <tag>代码</tag>
         <tag>一本正经</tag>
       </tags>
   </entry>
@@ -699,6 +709,22 @@ fun();</p>
         <tag>瞎扯</tag>
         <tag>生活</tag>
         <tag>人生</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>南朝悠悠</title>
+    <url>/2020/06/27/zatan/zatan-nanchao/</url>
+    <content><![CDATA[<p>南朝四百八十寺，多少楼台烟雨中。</p>
+<p>唏嘘哀哉，如今天朝互联网公司无数，码农遍地，百年以后，全部归于烟雨。</p>
+<p>多少996，没有任何用。</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>瞎扯</tag>
+        <tag>代码</tag>
+        <tag>一本正经</tag>
       </tags>
   </entry>
 </search>
