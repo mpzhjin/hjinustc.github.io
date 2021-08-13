@@ -99,6 +99,44 @@
       </tags>
   </entry>
   <entry>
+    <title>Mybatis 分页插件PageHelper，告别重复代码 - JAVA</title>
+    <url>/2020/04/10/code/java-pagehelper/</url>
+    <content><![CDATA[<p>写代码时总会碰到各种各样的分页操作，纵然你用了Mybatis之类的ORM框架，还是无法避免重复的分页代码。</p>
+<p>完善的Java生态自然有成熟的解决方案，比较流行的一个解法是使用PageHelper插件。</p>
+<a id="more"></a>
+
+<p>PageHelper插件官方地址： <a href="https://github.com/pagehelper/Mybatis-PageHelper" target="_blank" rel="noopener">https://github.com/pagehelper/Mybatis-PageHelper</a></p>
+<p>简单来讲，PageHelper插件会帮你把你的selectALl语句自动转换为一个分页查询的sql，<strong>并且给你返回详细的分页信息</strong>。</p>
+<p>话不多说，直接上例子。</p>
+<p>在Spring已然成为Java业界的事实标准的情况下，我们只聊Spring Boot。</p>
+<h3 id="引入依赖"><a href="#引入依赖" class="headerlink" title="引入依赖"></a>引入依赖</h3><p>不同的spring版本可能需要不同的pageHelper版本，推荐使用<strong>1.2.13</strong></p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">         &lt;!--MyBatis分页插件starter--&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;com.github.pagehelper&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;pagehelper-spring-boot-starter&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;version&gt;$&#123;pagehelper-starter.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="写代码"><a href="#写代码" class="headerlink" title="写代码"></a>写代码</h3><p>代码示例</p>
+<ul>
+<li><code>PageHelper.startPage(pageNum, pageSize)</code> 这一句会作用于下面的第一个查询语句。</li>
+<li>PageHelper的pageNum是从1开始，不是从0开始！</li>
+<li>PageInfo可以获取所有的分页信息。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PageHelper.startPage(pageNum, pageSize);</span><br><span class="line">PmsProductExample example &#x3D; new PmsProductExample();</span><br><span class="line">PmsProductExample.Criteria criteria &#x3D; example.createCriteria();</span><br><span class="line">criteria.andDeleteStatusEqualTo(0)</span><br><span class="line">        .andPublishStatusEqualTo(1);</span><br><span class="line">if (categoryId !&#x3D; null) &#123;</span><br><span class="line">    criteria.andProductCategoryIdEqualTo(categoryId);</span><br><span class="line">&#125;</span><br><span class="line">example.setOrderByClause(&quot;id desc&quot;);</span><br><span class="line">List&lt;PmsProduct&gt; pmsProducts &#x3D; productMapper.selectByExample(example);</span><br><span class="line"></span><br><span class="line">PageInfo&lt;PmsProduct&gt; pageInfo &#x3D; new PageInfo&lt;&gt;(pmsProducts);</span><br></pre></td></tr></table></figure>
+其中PageInfo包含了分页所需的所有信息，如下：
+<img src="https://i.loli.net/2020/04/10/gdif5XqtZju1srY.png" alt="PageInfo.png"></li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pageNum当前页 </span><br><span class="line">pageSize每页的数量 </span><br><span class="line">size当前页的数量 </span><br><span class="line">orderBy排序</span><br><span class="line">startRow当前页面第一个元素在数据库中的行号 </span><br><span class="line">endRow当前页面最后一个元素在数据库中的行号 </span><br><span class="line">total总记录数(在这里也就是查询到的用户总数)</span><br><span class="line">pages总页数 (这个页数也很好算，每页5条，总共有11条，需要3页才可以显示完) </span><br><span class="line">list结果集 </span><br><span class="line">prePage前一页 </span><br><span class="line">nextPage下一页 </span><br><span class="line">isFirstPage是否为第一页 </span><br><span class="line">isLastPage是否为最后一页 </span><br><span class="line">hasPreviousPage是否有前一页 </span><br><span class="line">hasNextPage是否有下一页 </span><br><span class="line">navigatePages导航页码数 </span><br><span class="line">navigatepageNums所有导航页号</span><br><span class="line">navigateFirstPage导航第一页 </span><br><span class="line">navigateLastPage导航最后一页 </span><br><span class="line">firstPage第一页 </span><br><span class="line">lastPage最后一页</span><br></pre></td></tr></table></figure>
+<p>非常详细，应有尽有，基本可以满足我们的所有日常业务需求。</p>
+<h3 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h3><p>PageHelper 方法使用了静态的<code>ThreadLocal</code>参数，分页参数和线程是绑定的。只要你可以保证在 PageHelper 方法调用后紧跟 MyBatis 查询方法，这就是安全的。
+PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。</p>
+<p>但是千万不要写成下面这样</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PageHelper.startPage(1, 10);</span><br><span class="line">List&lt;Country&gt; list;</span><br><span class="line">if(param1 !&#x3D; null)&#123;</span><br><span class="line">    list &#x3D; countryMapper.selectIf(param1);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">    list &#x3D; new ArrayList&lt;Country&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>就不讲为什么了。</p>
+<p>国人写的一款分页插件，让我感觉自己就是代码的搬运工。</p>
+]]></content>
+      <categories>
+        <category>Java</category>
+      </categories>
+      <tags>
+        <tag>小技巧</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>支付加密中的字典序排序（ASCII码排序）以及MD5 SHA256加密 -JAVA</title>
     <url>/2020/03/23/code/java-tricky-1/</url>
     <content><![CDATA[<p>在做业务开发，特别是支付相关的业务时，可能会碰到需要将入参按照字典序排序后再MD5或者SHA256加密的问题。
@@ -385,41 +423,101 @@ fun();</p>
       </tags>
   </entry>
   <entry>
-    <title>Mybatis 分页插件PageHelper，告别重复代码 - JAVA</title>
-    <url>/2020/04/10/code/java-pagehelper/</url>
-    <content><![CDATA[<p>写代码时总会碰到各种各样的分页操作，纵然你用了Mybatis之类的ORM框架，还是无法避免重复的分页代码。</p>
-<p>完善的Java生态自然有成熟的解决方案，比较流行的一个解法是使用PageHelper插件。</p>
+    <title>读江南三部曲</title>
+    <url>/2021/08/09/reading/reading-jiangnan-sanbuqu/</url>
+    <content><![CDATA[<p>拖了几个月才来写一写，这本书真的不好写。</p>
+<p>扫了下豆瓣和简书对这本书的评价，略两极化，说好的人是真的好，说差的人是真的不值一读。</p>
+<p>我个人只是一个小小的非专业小说读者，读下来还是挺震撼挺喜欢的，格非的三部曲，用三个不同时代背景下的三代人物，或悲伤，或无奈，或消极的人生，给了人一种无法言喻的感觉。</p>
 <a id="more"></a>
 
-<p>PageHelper插件官方地址： <a href="https://github.com/pagehelper/Mybatis-PageHelper" target="_blank" rel="noopener">https://github.com/pagehelper/Mybatis-PageHelper</a></p>
-<p>简单来讲，PageHelper插件会帮你把你的selectALl语句自动转换为一个分页查询的sql，<strong>并且给你返回详细的分页信息</strong>。</p>
-<p>话不多说，直接上例子。</p>
-<p>在Spring已然成为Java业界的事实标准的情况下，我们只聊Spring Boot。</p>
-<h3 id="引入依赖"><a href="#引入依赖" class="headerlink" title="引入依赖"></a>引入依赖</h3><p>不同的spring版本可能需要不同的pageHelper版本，推荐使用<strong>1.2.13</strong></p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">         &lt;!--MyBatis分页插件starter--&gt;</span><br><span class="line">&lt;dependency&gt;</span><br><span class="line">	&lt;groupId&gt;com.github.pagehelper&lt;&#x2F;groupId&gt;</span><br><span class="line">	&lt;artifactId&gt;pagehelper-spring-boot-starter&lt;&#x2F;artifactId&gt;</span><br><span class="line">	&lt;version&gt;$&#123;pagehelper-starter.version&#125;&lt;&#x2F;version&gt;</span><br><span class="line">&lt;&#x2F;dependency&gt;</span><br></pre></td></tr></table></figure>
-
-<h3 id="写代码"><a href="#写代码" class="headerlink" title="写代码"></a>写代码</h3><p>代码示例</p>
-<ul>
-<li><code>PageHelper.startPage(pageNum, pageSize)</code> 这一句会作用于下面的第一个查询语句。</li>
-<li>PageHelper的pageNum是从1开始，不是从0开始！</li>
-<li>PageInfo可以获取所有的分页信息。<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PageHelper.startPage(pageNum, pageSize);</span><br><span class="line">PmsProductExample example &#x3D; new PmsProductExample();</span><br><span class="line">PmsProductExample.Criteria criteria &#x3D; example.createCriteria();</span><br><span class="line">criteria.andDeleteStatusEqualTo(0)</span><br><span class="line">        .andPublishStatusEqualTo(1);</span><br><span class="line">if (categoryId !&#x3D; null) &#123;</span><br><span class="line">    criteria.andProductCategoryIdEqualTo(categoryId);</span><br><span class="line">&#125;</span><br><span class="line">example.setOrderByClause(&quot;id desc&quot;);</span><br><span class="line">List&lt;PmsProduct&gt; pmsProducts &#x3D; productMapper.selectByExample(example);</span><br><span class="line"></span><br><span class="line">PageInfo&lt;PmsProduct&gt; pageInfo &#x3D; new PageInfo&lt;&gt;(pmsProducts);</span><br></pre></td></tr></table></figure>
-其中PageInfo包含了分页所需的所有信息，如下：
-<img src="https://i.loli.net/2020/04/10/gdif5XqtZju1srY.png" alt="PageInfo.png"></li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">pageNum当前页 </span><br><span class="line">pageSize每页的数量 </span><br><span class="line">size当前页的数量 </span><br><span class="line">orderBy排序</span><br><span class="line">startRow当前页面第一个元素在数据库中的行号 </span><br><span class="line">endRow当前页面最后一个元素在数据库中的行号 </span><br><span class="line">total总记录数(在这里也就是查询到的用户总数)</span><br><span class="line">pages总页数 (这个页数也很好算，每页5条，总共有11条，需要3页才可以显示完) </span><br><span class="line">list结果集 </span><br><span class="line">prePage前一页 </span><br><span class="line">nextPage下一页 </span><br><span class="line">isFirstPage是否为第一页 </span><br><span class="line">isLastPage是否为最后一页 </span><br><span class="line">hasPreviousPage是否有前一页 </span><br><span class="line">hasNextPage是否有下一页 </span><br><span class="line">navigatePages导航页码数 </span><br><span class="line">navigatepageNums所有导航页号</span><br><span class="line">navigateFirstPage导航第一页 </span><br><span class="line">navigateLastPage导航最后一页 </span><br><span class="line">firstPage第一页 </span><br><span class="line">lastPage最后一页</span><br></pre></td></tr></table></figure>
-<p>非常详细，应有尽有，基本可以满足我们的所有日常业务需求。</p>
-<h3 id="安全性"><a href="#安全性" class="headerlink" title="安全性"></a>安全性</h3><p>PageHelper 方法使用了静态的<code>ThreadLocal</code>参数，分页参数和线程是绑定的。只要你可以保证在 PageHelper 方法调用后紧跟 MyBatis 查询方法，这就是安全的。
-PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。</p>
-<p>但是千万不要写成下面这样</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PageHelper.startPage(1, 10);</span><br><span class="line">List&lt;Country&gt; list;</span><br><span class="line">if(param1 !&#x3D; null)&#123;</span><br><span class="line">    list &#x3D; countryMapper.selectIf(param1);</span><br><span class="line">&#125; else &#123;</span><br><span class="line">    list &#x3D; new ArrayList&lt;Country&gt;();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>就不讲为什么了。</p>
-<p>国人写的一款分页插件，让我感觉自己就是代码的搬运工。</p>
+<p>对，无法言喻，原谅我真的是词汇匮乏，要非要找一个词，我愿意用 “不甘”，民国前期，解放初期，21世纪，不同时代的人有不同的人生，却有着相似的烦恼，无论是反抗，还是奋发，还是躺平，都让人很不甘，就好像无论你怎么样，生活都是苦涩的。</p>
+<p>如果从理想和现实的对比来看这本书，毫无疑问，三代人都被现实虐的体无完肤，但是历史中的个人，追求自己想要的生活，这有错吗？</p>
+<p>读这本书后，我一直在思考一个好像不太相关的事情，我也不确定是不是被这本书引发的，就是科技的发展，真的对人类社会带来好处了吗？那些科技公司宣扬的所谓革新，真的让人的生活更加快乐了吗？</p>
+<p>效率的提升直观上看是解放了人的双手，单位时间的产出变多，但是是是是是，人的总工作时长并没有减少呀，这么看起来的话，每个人的付出反而变多了，因为你的大脑必须在更短的时间内处理更多的产出。如果可记得革新并没有想象中的让我们有更多的时间休息，那么该有的烦恼还是烦恼，那么革新的意义究竟在哪里？</p>
+<p>现代这个社会，娱乐至死，大家不停的刷刷刷， 刷视频，刷公众号，刷微博，都是完完全全的碎片化阅读，格非老师的这本书，跟这个时代是合不进去的，写的也不是这个时代的人喜欢的东西，但是我还是比较庆幸的，还有人在写这个时代不喜欢的东西。</p>
+<p>以后有机会，要再读一读。</p>
 ]]></content>
       <categories>
-        <category>Java</category>
+        <category>杂谈</category>
       </categories>
       <tags>
-        <tag>小技巧</tag>
+        <tag>读书</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>读水浒</title>
+    <url>/2021/07/01/reading/reading-shui-hu-zhuan/</url>
+    <content><![CDATA[<p>难得的一个月的假期，碰上疫情哪里都去不了，读了很多书。</p>
+<p>水浒是我最近读的比较专注的一本，上学时候怎么都读不下去这本书，只是模糊的记得几个著名的片段，武松打虎，
+鲁智深倒把垂杨柳之类的。</p>
+<p>时隔这么多年后重读这本书，观感和以前从杂志，网上，从各类文章里评论的水浒都不同。</p>
+<p>可能是一千个人有一千个水浒。</p>
+<a id="more"></a>
+
+<p>第一个感觉是 “真实”，整本书充满了打打杀杀，英雄人物很多，但是也都很意气用事，动不动就灭了对方全家，
+为了劝对方上山直接伪造诗文等等，跟我们传统印象中的武侠人物那种风度翩翩，快意恩仇的形象大相径庭，完全就是
+一群古惑仔在一起。</p>
+<p>第二个感觉是 “愚忠”，大家如果没有读过水浒，只看过电视剧或者别人写的作文，鉴赏文章，很容易认为所有的错
+都在宋江一个人，甚至幻想着如果没有宋江，梁山好汉可能会推翻朝廷自立为王之类的，但是从小说中看，梁山好汉
+中大部分都是倾向于招安的，宋江只是一个推进者和沟通者的角色。甚至在之后打辽国，灭田虎王庆，平方腊判断，
+都是部下主动请求想借之建功立业报销朝廷的。</p>
+<p>三十六天罡中，真正不想招安的可能也就阮氏三雄，李逵，武松等寥寥几人而已。</p>
+<p>第三个感觉是”逆天改命难于上青天”，书中写到了三十六天罡，七十二地煞其实都是上天的安排，那么我个人以为，
+在打辽国，灭田虎王庆的时候全员得胜而归，但是在平方腊的时候死伤大几十人，这不就是上天的警告吗？平方腊
+真的比打辽国难吗？不见得，而且书中已经明确指明了很多人是由于途中感染瘟疫而死，或者失足落马而已，甚至
+直接被淹死，由此可见宋江这股逆天而行的平方腊并没有好下场。</p>
+<p>第四个感觉是”人心隔肚皮”，表面义薄云天为朋友两肋插刀，反手就是一波手里刀。大家讨论最多的阴谋论是宋江杀死了
+晁盖，根据我的阅读此说法并不可信，书中并没有任何显式或隐式的交代，比较像是后人意淫出来的。</p>
+<p>但是本书中好汉之间的各种小动作是层出不穷，比如鲁智深一路护送林冲，刚离开林冲反手就”无意间”透漏鲁智深的工作地点
+给官差，再比如燕青为了卢俊义上刀山下火山，但是卢俊义就只是把燕青看做一个狗奴才，再比如说朱武作为神机军师就是个
+渣渣，其实毛都不会就知道送人头， 这些都是比较隐式的写法，需要结合上下文来理解，但是其实不难发现。</p>
+<p>显式的一个例子最后宋江被毒酒害死之前怕李逵造反就反手把李逵也毒死了，这不坑爹吗，
+大家就算是过命的交情也不至于你怀疑我可能对你名声不利，就非要堵死我吧？这交情真的有毒啊？</p>
+<p>北宋末年的朝廷腐败无度，奸臣当道，但是作者并没有花特别大的篇幅去讲朝廷上发生的事儿，而是通过书写底层人民的生活
+去讲好汉们被逼上梁山的故事，来侧面反映时代的变化，通过以上的一二三四让人又有种亲临的感觉。</p>
+<p>读完之后唏嘘不已，一切看似本有机会去逆天改命，细看之又是命中注定，时代所致。</p>
+<p>有机会要重新再看一看。</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>读书</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>闲说何为技术能力</title>
+    <url>/2020/03/12/zatan/zatan-1/</url>
+    <content><![CDATA[<p>转眼已经工作快五年了。</p>
+<p>总觉得时间好像开了一个玩笑，五年前，总是充满激情满含热泪的写代码到深夜，对第二天的工作充满憧憬。如今已然变成了一个略显油腻的略显油腻的搬砖小能手。意料之外，想象之中呐。</p>
+<p>写了这么多年代码，仔细想想，大部分的时间是不是都在重复同样的劳动？无论是一开始在北京搜狐，还是后来去了杭州，在阿里修了两年
+福报，还是现在在shopee。所谓技术能力的高低真的能在工作中成长吗？</p>
+<a id="more"></a>
+
+<p>历史告诉我们最大的教训就是我们从来不从历史中吸取教训，在公司工作的时候，总会觉得自己的事情特别有意义，特别有价值，是不是？
+大家其实都陷入到了一个怪圈，就是对大公司而言，它的目标并不是让大家都变得很强，而是让大家都变成一颗坚实的螺丝钉，在任何时刻
+都不掉链子。</p>
+<p>所以第一个结论，在公司的工作并不会让自己的写代码能力变得更强，更重要的是锻炼自己的与人协作、沟通、推动一件事情的能力，也即是所谓的软实力
+，当然如果你天天只知闷头写代码，若干年后你肯定会吃亏的。</p>
+<p>那么，到底什么才是真正的技术能力？</p>
+<p>找工作的时候最重要的是什么？根据我两次换工作的经验，自然是刷题啦。</p>
+<p>但是刷题强真的就是技术能力强吗？你有见过哪个业界大佬是刷题大佬？我就不信每个GitHub star上万的作者都会旋转红黑树。</p>
+<p>所以第二个结论，刷题也不会让自己的写代码能力变得更强，只会让自己的装逼能力变得更强，这也是我对刷题一直嗤之以鼻的原因。</p>
+<p>那么，到底什么才是真正的技术能力？</p>
+<p>试想，程序员之间互喷最多的是什么？就是你tm到底懂不懂我在说什么。</p>
+<p>为什么你以为我不懂你在说什么？</p>
+<p>因为凭借我的技术能力并不足以从一个全面的角度来解决你所提出的问题，不能够给出一个让你完全信服的解决方案。
+注意信服的解决方案，并不是让你满意的解决方案，而是一个让你不管心里爽不爽都不由得没话说的解决方案。</p>
+<p>所以，在我看来，一个程序员技术能力的强大与否，在于解决问题的能力。</p>
+<p>看起来是不是我说了一堆没用的话。</p>
+<p>想想你是不是每天在公司搬砖，每天在刷题，有培养了自己的技术能力吗？</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>瞎扯</tag>
+        <tag>代码</tag>
       </tags>
   </entry>
   <entry>
@@ -488,6 +586,21 @@ PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。
         <tag>瞎扯</tag>
         <tag>代码</tag>
         <tag>一本正经</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>许久没更新</title>
+    <url>/2021/06/25/zatan/zatan-best-restart/</url>
+    <content><![CDATA[<p>真的好久没有更新博客，惭愧(⊙ˍ⊙)</p>
+<p>一转眼一年过去了，也是有娃的人了</p>
+<p>人生还是要坚持做一些事情，不然和一个咸鱼有什么区别</p>
+<p>加油，坚持，自勉！</p>
+]]></content>
+      <categories>
+        <category>杂谈</category>
+      </categories>
+      <tags>
+        <tag>瞎扯</tag>
       </tags>
   </entry>
   <entry>
@@ -566,56 +679,6 @@ PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。
       </tags>
   </entry>
   <entry>
-    <title>许久没更新</title>
-    <url>/2021/06/25/zatan/zatan-best-restart/</url>
-    <content><![CDATA[<p>真的好久没有更新博客，惭愧(⊙ˍ⊙)</p>
-<p>一转眼一年过去了，也是有娃的人了</p>
-<p>人生还是要坚持做一些事情，不然和一个咸鱼有什么区别</p>
-<p>加油，坚持，自勉！</p>
-]]></content>
-      <categories>
-        <category>杂谈</category>
-      </categories>
-      <tags>
-        <tag>瞎扯</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>闲说何为技术能力</title>
-    <url>/2020/03/12/zatan/zatan-1/</url>
-    <content><![CDATA[<p>转眼已经工作快五年了。</p>
-<p>总觉得时间好像开了一个玩笑，五年前，总是充满激情满含热泪的写代码到深夜，对第二天的工作充满憧憬。如今已然变成了一个略显油腻的略显油腻的搬砖小能手。意料之外，想象之中呐。</p>
-<p>写了这么多年代码，仔细想想，大部分的时间是不是都在重复同样的劳动？无论是一开始在北京搜狐，还是后来去了杭州，在阿里修了两年
-福报，还是现在在shopee。所谓技术能力的高低真的能在工作中成长吗？</p>
-<a id="more"></a>
-
-<p>历史告诉我们最大的教训就是我们从来不从历史中吸取教训，在公司工作的时候，总会觉得自己的事情特别有意义，特别有价值，是不是？
-大家其实都陷入到了一个怪圈，就是对大公司而言，它的目标并不是让大家都变得很强，而是让大家都变成一颗坚实的螺丝钉，在任何时刻
-都不掉链子。</p>
-<p>所以第一个结论，在公司的工作并不会让自己的写代码能力变得更强，更重要的是锻炼自己的与人协作、沟通、推动一件事情的能力，也即是所谓的软实力
-，当然如果你天天只知闷头写代码，若干年后你肯定会吃亏的。</p>
-<p>那么，到底什么才是真正的技术能力？</p>
-<p>找工作的时候最重要的是什么？根据我两次换工作的经验，自然是刷题啦。</p>
-<p>但是刷题强真的就是技术能力强吗？你有见过哪个业界大佬是刷题大佬？我就不信每个GitHub star上万的作者都会旋转红黑树。</p>
-<p>所以第二个结论，刷题也不会让自己的写代码能力变得更强，只会让自己的装逼能力变得更强，这也是我对刷题一直嗤之以鼻的原因。</p>
-<p>那么，到底什么才是真正的技术能力？</p>
-<p>试想，程序员之间互喷最多的是什么？就是你tm到底懂不懂我在说什么。</p>
-<p>为什么你以为我不懂你在说什么？</p>
-<p>因为凭借我的技术能力并不足以从一个全面的角度来解决你所提出的问题，不能够给出一个让你完全信服的解决方案。
-注意信服的解决方案，并不是让你满意的解决方案，而是一个让你不管心里爽不爽都不由得没话说的解决方案。</p>
-<p>所以，在我看来，一个程序员技术能力的强大与否，在于解决问题的能力。</p>
-<p>看起来是不是我说了一堆没用的话。</p>
-<p>想想你是不是每天在公司搬砖，每天在刷题，有培养了自己的技术能力吗？</p>
-]]></content>
-      <categories>
-        <category>杂谈</category>
-      </categories>
-      <tags>
-        <tag>瞎扯</tag>
-        <tag>代码</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>上海隔离小记</title>
     <url>/2021/08/09/zatan/zatan-geli/</url>
     <content><![CDATA[<p>距离上次写又是一个月，哈哈，斑马斑马，你不要睡着啦。</p>
@@ -687,66 +750,28 @@ PageHelper 在 finally 代码段中自动清除了 ThreadLocal存储的对象。
       </tags>
   </entry>
   <entry>
-    <title>读江南三部曲</title>
-    <url>/2021/08/09/reading/reading-jiangnan-sanbuqu/</url>
-    <content><![CDATA[<p>拖了几个月才来写一写，这本书真的不好写。</p>
-<p>扫了下豆瓣和简书对这本书的评价，略两极化，说好的人是真的好，说差的人是真的不值一读。</p>
-<p>我个人只是一个小小的非专业小说读者，读下来还是挺震撼挺喜欢的，格非的三部曲，用三个不同时代背景下的三代人物，或悲伤，或无奈，或消极的人生，给了人一种无法言喻的感觉。</p>
-<a id="more"></a>
-
-<p>对，无法言喻，原谅我真的是词汇匮乏，要非要找一个词，我愿意用 “不甘”，民国前期，解放初期，21世纪，不同时代的人有不同的人生，却有着相似的烦恼，无论是反抗，还是奋发，还是躺平，都让人很不甘，就好像无论你怎么样，生活都是苦涩的。</p>
-<p>如果从理想和现实的对比来看这本书，毫无疑问，三代人都被现实虐的体无完肤，但是历史中的个人，追求自己想要的生活，这有错吗？</p>
-<p>读这本书后，我一直在思考一个好像不太相关的事情，我也不确定是不是被这本书引发的，就是科技的发展，真的对人类社会带来好处了吗？那些科技公司宣扬的所谓革新，真的让人的生活更加快乐了吗？</p>
-<p>效率的提升直观上看是解放了人的双手，单位时间的产出变多，但是是是是是，人的总工作时长并没有减少呀，这么看起来的话，每个人的付出反而变多了，因为你的大脑必须在更短的时间内处理更多的产出。如果可记得革新并没有想象中的让我们有更多的时间休息，那么该有的烦恼还是烦恼，那么革新的意义究竟在哪里？</p>
-<p>现代这个社会，娱乐至死，大家不停的刷刷刷， 刷视频，刷公众号，刷微博，都是完完全全的碎片化阅读，格非老师的这本书，跟这个时代是合不进去的，写的也不是这个时代的人喜欢的东西，但是我还是比较庆幸的，还有人在写这个时代不喜欢的东西。</p>
-<p>以后有机会，要再读一读。</p>
+    <title>用王家卫的方式记录隔离生活</title>
+    <url>/2021/08/13/zatan/zatan-shanghaisenlin/</url>
+    <content><![CDATA[<p>《上海森林》</p>
+<p>在2021年的8月2号，有一个酒店员工跟我讲了一声“不许出门”，因为这一句话，我会一直待在这个酒店。如果记忆也是一台电脑的话，我希望这台电脑永远不会坏，如果一定要加一个日子的话，我希望它是十四天。
+（All the leaves are brown）</p>
+<p>每天你都有机会和很多盒饭擦身而过，而你或者对他们一无所知，不过也许有一天他会变成你的早餐或者晚餐。
+（And the sky is grey）</p>
+<p>十三号，八月十三号，2021年的八月十三号早上九点前的一分钟我在刷B站，因为B站我会记住这一分钟，从现在开始我会刷B站一分钟，这是事实，你改变不了，因为已经过去了，我明天还会继续刷B站。
+（I’ve been for a walk，On a winter’s day）</p>
+<p>不知道从什么时候开始，在什么东西上面都有个日期，可乐会过期，苹果会过期，连手机都会过期，我开始怀疑，在这个世界上，还有什么东西是不会过期的？
+（I’d be safe and warm）</p>
+<p>其实隔离一个人并不代表什么，人是会变的，这次他在上海，下次就可以去深圳。
+（If I was in L.A.）</p>
+<p>如果隔离会过期，我希望它定格在十四天。
+（California dreaming，On such a winter’s day）</p>
 ]]></content>
       <categories>
         <category>杂谈</category>
       </categories>
       <tags>
-        <tag>读书</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>读水浒</title>
-    <url>/2021/07/01/reading/reading-shui-hu-zhuan/</url>
-    <content><![CDATA[<p>难得的一个月的假期，碰上疫情哪里都去不了，读了很多书。</p>
-<p>水浒是我最近读的比较专注的一本，上学时候怎么都读不下去这本书，只是模糊的记得几个著名的片段，武松打虎，
-鲁智深倒把垂杨柳之类的。</p>
-<p>时隔这么多年后重读这本书，观感和以前从杂志，网上，从各类文章里评论的水浒都不同。</p>
-<p>可能是一千个人有一千个水浒。</p>
-<a id="more"></a>
-
-<p>第一个感觉是 “真实”，整本书充满了打打杀杀，英雄人物很多，但是也都很意气用事，动不动就灭了对方全家，
-为了劝对方上山直接伪造诗文等等，跟我们传统印象中的武侠人物那种风度翩翩，快意恩仇的形象大相径庭，完全就是
-一群古惑仔在一起。</p>
-<p>第二个感觉是 “愚忠”，大家如果没有读过水浒，只看过电视剧或者别人写的作文，鉴赏文章，很容易认为所有的错
-都在宋江一个人，甚至幻想着如果没有宋江，梁山好汉可能会推翻朝廷自立为王之类的，但是从小说中看，梁山好汉
-中大部分都是倾向于招安的，宋江只是一个推进者和沟通者的角色。甚至在之后打辽国，灭田虎王庆，平方腊判断，
-都是部下主动请求想借之建功立业报销朝廷的。</p>
-<p>三十六天罡中，真正不想招安的可能也就阮氏三雄，李逵，武松等寥寥几人而已。</p>
-<p>第三个感觉是”逆天改命难于上青天”，书中写到了三十六天罡，七十二地煞其实都是上天的安排，那么我个人以为，
-在打辽国，灭田虎王庆的时候全员得胜而归，但是在平方腊的时候死伤大几十人，这不就是上天的警告吗？平方腊
-真的比打辽国难吗？不见得，而且书中已经明确指明了很多人是由于途中感染瘟疫而死，或者失足落马而已，甚至
-直接被淹死，由此可见宋江这股逆天而行的平方腊并没有好下场。</p>
-<p>第四个感觉是”人心隔肚皮”，表面义薄云天为朋友两肋插刀，反手就是一波手里刀。大家讨论最多的阴谋论是宋江杀死了
-晁盖，根据我的阅读此说法并不可信，书中并没有任何显式或隐式的交代，比较像是后人意淫出来的。</p>
-<p>但是本书中好汉之间的各种小动作是层出不穷，比如鲁智深一路护送林冲，刚离开林冲反手就”无意间”透漏鲁智深的工作地点
-给官差，再比如燕青为了卢俊义上刀山下火山，但是卢俊义就只是把燕青看做一个狗奴才，再比如说朱武作为神机军师就是个
-渣渣，其实毛都不会就知道送人头， 这些都是比较隐式的写法，需要结合上下文来理解，但是其实不难发现。</p>
-<p>显式的一个例子最后宋江被毒酒害死之前怕李逵造反就反手把李逵也毒死了，这不坑爹吗，
-大家就算是过命的交情也不至于你怀疑我可能对你名声不利，就非要堵死我吧？这交情真的有毒啊？</p>
-<p>北宋末年的朝廷腐败无度，奸臣当道，但是作者并没有花特别大的篇幅去讲朝廷上发生的事儿，而是通过书写底层人民的生活
-去讲好汉们被逼上梁山的故事，来侧面反映时代的变化，通过以上的一二三四让人又有种亲临的感觉。</p>
-<p>读完之后唏嘘不已，一切看似本有机会去逆天改命，细看之又是命中注定，时代所致。</p>
-<p>有机会要重新再看一看。</p>
-]]></content>
-      <categories>
-        <category>杂谈</category>
-      </categories>
-      <tags>
-        <tag>读书</tag>
+        <tag>瞎扯</tag>
+        <tag>一本正经</tag>
       </tags>
   </entry>
 </search>
